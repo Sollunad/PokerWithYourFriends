@@ -10,11 +10,9 @@ table.StartGame();
 
 console.log(table.game);
 console.log(table.getCurrentPlayer());
-table.players[0].Bet(150);
-table.players[1].Call();
-table.players[2].Bet(100);
 table.players[0].Call();
 table.players[1].Call();
+table.players[2].Check();
 
 table.players[0].Check();
 table.players[1].Check();

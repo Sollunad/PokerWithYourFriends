@@ -448,9 +448,6 @@ Table.prototype.setCurrentPlayerForNewRound = function () {
 
 Table.prototype.moveCurrentPlayerForward = function () {
     this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
-
-    console.log(this.players.length);
-    console.log(this.currentPlayer);
     while (this.players[this.currentPlayer].folded || this.players[this.currentPlayer].allIn) {
         this.currentPlayer = this.currentPlayer + 1 % this.players.length;
     }
@@ -461,15 +458,9 @@ Player.prototype.GetChips = function (cash) {
 };
 
 Player.prototype.Check = function () {
-    var checkAllow, v, i;
-    checkAllow = true;
-    for (v = 0; v < this.table.game.bets.length; v += 1) {
-        //TODO: Big Blind kann nicht checken
-        if (this.table.game.bets[v] !== 0) {
-            checkAllow = false;
-        }
-    }
-    if (checkAllow) {
+    const maxBet = getMaxBet(this.table.game.bets);
+    const ownBet = this.table.game.bets[this.playerId()];
+    if (maxBet === ownBet) {
         this.talked = true;
         //Attemp to progress the game
         this.lastAction = {action: "check", playerName: this.playerName};
