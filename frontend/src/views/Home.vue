@@ -1,10 +1,8 @@
 <template>
   <div v-if="$auth.isAuthenticated" class="home">
     <v-container>
-      <v-btn elevation="5" outlined medium>
-        <router-link :to="{ name: '/lobby', params: {} }"
-          >Create new lobby</router-link
-        ></v-btn
+      <v-btn @click="createNewGame" elevation="5" outlined medium>
+        Create new lobby</v-btn
       >
       <v-btn elevation="5" outlined medium> Join Lobby</v-btn>
     </v-container>
@@ -12,7 +10,16 @@
 </template>
 
 <script>
+import fetch from "../services/connector";
+
 export default {
-  name: "Home"
+  name: "Home",
+  methods: {
+    async createNewGame() {
+      const response = await fetch(this, "games", "post", {});
+      console.log(response);
+      this.$router.push(`/lobby?code=${response.game_code}`);
+    }
+  }
 };
 </script>
