@@ -2,6 +2,7 @@ const randomString = require('random-base64-string');
 const { uniqueNamesGenerator, adjectives, colors, animals } = require('unique-names-generator');
 
 exports.newGame = getNewGame;
+exports.newPlayer = getNewPlayer;
 
 function getNewGame(creator_sub) {
     return {

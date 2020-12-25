@@ -18,4 +18,4 @@ exports.Connector = class Connector {
     async close() {
         await this.client.close();
     }
-}
+};

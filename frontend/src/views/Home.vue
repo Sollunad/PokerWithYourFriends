@@ -18,7 +18,7 @@ export default {
     async createNewGame() {
       const response = await fetch(this, "games", "post", {});
       console.log(response);
-      this.$router.push(`/lobby?code=${response.game_code}`);
+      await this.$router.push(`/lobby?code=${response.game_code}`);
     }
   }
 };
