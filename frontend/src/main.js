@@ -7,6 +7,8 @@ import { domain, clientId, audience } from "../config.json";
 // Import the plugin here
 import { Auth0Plugin } from "./auth";
 
+import vuetify from './plugins/vuetify';
+
 Vue.config.productionTip = false;
 
 Vue.use(Auth0Plugin, {
@@ -24,5 +26,6 @@ Vue.use(Auth0Plugin, {
 
 new Vue({
   router,
+  vuetify,
   render: h => h(App)
 }).$mount('#app');
