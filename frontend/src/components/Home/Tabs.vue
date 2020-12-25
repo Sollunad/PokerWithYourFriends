@@ -8,17 +8,22 @@
     >
       {{ tab }}</span
     >
-    <div v-show="selectedTab === 'Join Table'">
+    <div class="section"></div>
+    <div v-show="selectedTab === 'Join Table'" class="section-center">
       <p v-if="!tables.length">There are currently no open tables</p>
       <open-table
-        v-for="{ id, startChips, password } in tables"
+        v-for="{ id, startChips, password, name } in tables"
         :key="id"
         :password="password"
         :startChips="startChips"
+        :name="name"
       ></open-table>
     </div>
 
-    <new-table v-show="selectedTab === 'Create new Table'"></new-table>
+    <new-table
+      @publish-table="addTable"
+      v-show="selectedTab === 'Create new Table'"
+    ></new-table>
   </div>
 </template>
 
@@ -31,17 +36,39 @@ export default {
     newTable: NewTable,
     openTable: OpenTable
   },
-  props: ["tables"],
   data() {
     return {
       tabs: ["Join Table", "Create new Table"],
-      selectedTab: "Join Table"
+      selectedTab: "Join Table",
+      tables: []
     };
+  },
+  methods: {
+    addTable(table) {
+      this.tables.push(table);
+    }
   }
 };
 </script>
 
 <style lang="css" scoped>
+.tabs {
+  margin-top: 2rem;
+}
+
+.section {
+  margin: 2rem 0;
+}
+
+.section-center {
+  width: 90vw;
+  max-width: 1170px;
+  margin: 0 auto;
+}
+span {
+  cursor: pointer;
+  margin: 0 5px;
+}
 .activeTab {
   color: red;
   text-decoration: underline;

@@ -2,17 +2,24 @@
   <div>
     <p>Create a new Game:</p>
     <form @submit.prevent="publishTable" class="createForm">
-      <div class="createForm-items">
+      <div class="createForm-item">
+        <label for="table-name">Table Name: </label>
+        <input v-model="newTable.name" id="table-name" />
+      </div>
+
+      <div class="createForm-item">
+        <label for="table-pwd">Table Password: </label>
+        <input v-model="newTable.password" id="table-pwd" />
+      </div>
+
+      <div class="createForm-item">
         <label for="start-chips"> Starting chips: </label>
         <input v-model="newTable.startChips" id="start-chips" />
       </div>
 
-      <div class="createForm-items">
-        <label for="lobby-pwd">Lobby Password: </label>
-        <input v-model="newTable.password" id="lobby-pwd" />
-      </div>
-
-      <input class="createForm-btn" type="submit" value="Publish Table" />
+      <button class="createForm-btn" type="submit">
+        Publish Table
+      </button>
     </form>
   </div>
 </template>
@@ -22,13 +29,24 @@ export default {
   name: "newTable",
   data() {
     return {
-      newTable: { id: 0, startChips: null, password: null }
+      newTable: {
+        id: 0,
+        name: `Table of ${this.$auth._data.user.nickname}`,
+        startChips: 5000,
+        password: null
+      }
     };
   },
   methods: {
     publishTable() {
-      this.$root.$emit("publish-table", this.newTable);
-      this.newTable = { startChips: null, password: null };
+      this.$emit("publish-table", this.newTable);
+      this.newTable = {
+        id: 0,
+        name: `Table of ${this.$auth._data.user.nickname}`,
+        startChips: 5000,
+        password: null
+      };
+      this.$parent.selectedTab = "Join Table";
     }
   }
 };
@@ -43,7 +61,7 @@ export default {
   grid-template-columns: 1fr;
 }
 
-.createForm-items {
+.createForm-item {
   display: grid;
   grid-template-columns: 1fr 1fr;
 }

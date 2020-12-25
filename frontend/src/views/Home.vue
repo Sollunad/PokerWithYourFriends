@@ -6,7 +6,8 @@
       <!-- show logout when authenticated -->
       <button v-if="$auth.isAuthenticated" @click="logout">Log out</button>
 
-      <tabs :tables="tables"></tabs>
+      <tabs></tabs>
+      <!-- :tables="tables" -->
     </div>
   </div>
 </template>
@@ -18,11 +19,11 @@ export default {
   components: {
     tabs: Tabs
   },
-  data() {
+  /* data() {
     return {
       tables: []
     };
-  },
+  }, */
   methods: {
     // Log the user in
     login() {
@@ -32,11 +33,6 @@ export default {
     logout() {
       this.$auth.logout({
         returnTo: window.location.origin
-      });
-    },
-    mounted() {
-      this.$root.$on("publish-table", table => {
-        this.tables.push(table);
       });
     }
   }
