@@ -1,3 +1,5 @@
+const {createNewGame} = require("./services/games/controller");
+
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -34,6 +36,15 @@ app.get('/authorized', function (req, res) {
     console.log(req.user.sub);
     res.send('Success!');
 });
+
+app.post('/games', async function (req, res) {
+    const db_response = await createNewGame(req.user.sub);
+    if (db_response.db_status === 'success') {
+        res.status(200).send({game_code: db_response.game_code});
+    } else {
+        res.status(500).end();
+    }
+})
 
 function serveHTTP() {
     const server = http.createServer(app);

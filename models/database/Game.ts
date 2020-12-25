@@ -8,8 +8,11 @@ class Player {
 }
 
 class BlindRules {
+    // List of small blinds progressing through the game
     small: number[];
+    // List of big blinds progressing through the game
     big: number[];
+    // Number of rounds, after which blinds are raised
     raise_every_n_rounds: number;
 }
 
@@ -18,16 +21,18 @@ export class Game {
     code: string;
     // Timestamp when the Game was opened
     opened: Date;
+    // True, when the game left the lobby state and started the table
+    started: boolean;
     // Timestamp when the last round finished
-    last_round: Date;
+    last_round: Date | undefined;
     // Array of participating players
     players: Player[];
     // References user_id from admin player
     admin: string;
-    // References user_id from next dealer
-    next_dealer: string;
+    // References seat_number from next dealer
+    next_dealer: number;
     // Number of rounds played in the game
     rounds_played: number;
     // Blind rules
-    blinds: BlindRules;
+    blindRule: BlindRules;
 }
