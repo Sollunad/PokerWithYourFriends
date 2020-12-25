@@ -4,7 +4,7 @@
       <router-link to="/">Home</router-link> |
       <router-link to="/about">Login-API-Test</router-link>
     </div>
-    <router-view/>
+    <router-view />
   </div>
 </template>
 

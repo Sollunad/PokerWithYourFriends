@@ -5,13 +5,24 @@
       <button v-if="!$auth.isAuthenticated" @click="login">Log in</button>
       <!-- show logout when authenticated -->
       <button v-if="$auth.isAuthenticated" @click="logout">Log out</button>
+
+      <tabs :tables="tables"></tabs>
     </div>
   </div>
 </template>
 
 <script>
+import Tabs from "../components/Home/Tabs.vue";
 export default {
-  name: 'Home',
+  name: "Home",
+  components: {
+    tabs: Tabs
+  },
+  data() {
+    return {
+      tables: []
+    };
+  },
   methods: {
     // Log the user in
     login() {
@@ -22,7 +33,12 @@ export default {
       this.$auth.logout({
         returnTo: window.location.origin
       });
+    },
+    mounted() {
+      this.$root.$on("publish-table", table => {
+        this.tables.push(table);
+      });
     }
   }
-}
+};
 </script>
