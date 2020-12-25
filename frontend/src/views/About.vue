@@ -1,6 +1,7 @@
 <template>
   <div class="about">
     <h1>This is an about page</h1>
+    <button @click="newGame">Neues Spiel erstellen</button>
   </div>
 </template>
 
@@ -8,9 +9,12 @@
   import fetch from "../services/connector";
 
   export default {
-    async mounted() {
-      const res = await fetch(this, 'authorized', 'get', {});
-      console.log(res);
+    methods: {
+      newGame: async function () {
+        console.log(this);
+        const response = await fetch(this, 'games', 'post', {});
+        console.log(response);
+      }
     }
   }
 </script>
