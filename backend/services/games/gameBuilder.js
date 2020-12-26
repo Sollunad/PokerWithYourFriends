@@ -13,7 +13,7 @@ function getNewGame(creator_sub) {
         admin: creator_sub,
         next_dealer: 0,
         rounds_played: 0,
-        blindRules: getDefaultBlindRules(),
+        blind_rules: getDefaultBlindRules(),
     }
 }
 
