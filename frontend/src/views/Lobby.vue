@@ -81,16 +81,58 @@ export default {
   name: "Lobby",
   data() {
     return {
-      game: {
-        _id: 123,
-        code: 123,
+      game_state: {
+        players: [
+          {
+            name: "admin",
+            is_self: true,
+            is_turn: true,
+            is_connected: true,
+            is_admin: true,
+            is_dealer: true,
+            is_bb: false,
+            is_sb: false,
+            is_out: false,
+            has_fold: false,
+            cards: [
+              { card: { visible: false, value: "K", suit: "D" } },
+              { card: { visible: false, value: "K", suit: "D" } }
+            ],
+            chips_bank: 100,
+            chips_bet: 10,
+            pot: 0
+          },
+          {
+            name: "player2",
+            is_self: false,
+            is_turn: true,
+            is_connected: true,
+            is_admin: true,
+            is_dealer: true,
+            is_bb: false,
+            is_sb: false,
+            is_out: false,
+            has_fold: false,
+            cards: [
+              { card: { visible: false, value: "K", suit: "D" } },
+              { card: { visible: false, value: "K", suit: "D" } }
+            ],
+            chips_bank: 100,
+            chips_bet: 10,
+            pot: 0
+          }
+        ],
+        board: [
+          { card: { visible: false, value: "K", suit: "D" } },
+          { card: { visible: false, value: "K", suit: "D" } },
+          { card: { visible: false, value: "K", suit: "D" } },
+          { card: { visible: false, value: "K", suit: "D" } },
+          { card: { visible: false, value: "K", suit: "D" } }
+        ],
         started: false,
-        players: [{ user_id: 123, name: "admin", chips: 5000 }],
-        admin: 123,
-        next_dealer: "p2",
-        rounds_played: 0
+        blind_rules: { steps: [], raise_every_n_rounds: 0 }
       },
-      current_user: { user_id: 123, name: "admin", chips: 5000 }
+      current_user: this.$auth
     };
   },
   methods: {
@@ -98,7 +140,8 @@ export default {
       this.game.started = true;
     },
     saveSettings() {}
-  }
+  },
+  mounted() {}
 };
 </script>
 
