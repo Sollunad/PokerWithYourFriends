@@ -1,8 +1,9 @@
 <template>
   <div id="app">
-    <v-toolbar dense>
-      <router-link to="/">Home</router-link>
+    <v-toolbar height="50" dense>
+      <v-toolbar-title><router-link to="/">Home</router-link></v-toolbar-title>
       <v-spacer></v-spacer>
+
       <v-btn v-if="!$auth.isAuthenticated" @click="login">Log in</v-btn>
       <v-btn v-else @click="logout">Log out</v-btn>
     </v-toolbar>
@@ -36,10 +37,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
 }
 
 #nav a {
