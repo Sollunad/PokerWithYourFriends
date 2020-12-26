@@ -1,6 +1,6 @@
 <template lang="html">
   <div class="game">
-    <v-container class="lobby" @click="returnToGeneral">
+    <div class="lobby" @click="returnToGeneral">
       <v-container v-if="game_state.started">
         Game has started
       </v-container>
@@ -20,83 +20,109 @@
           </v-list-item>
         </v-list>
       </v-container>
-    </v-container>
+    </div>
 
-    <v-container class="settings">
-      <div v-if="current_user.user_id == game_state.admin">
-        <div v-if="game_state.started">
-          <p>Card 1 / Card 2</p>
-          <v-btn>Fold</v-btn>
-          <v-btn>Check</v-btn>
-          <v-btn>Call</v-btn>
-          <v-btn>Raise</v-btn>
-        </div>
-        <div v-else class="admin-settings">
-          <div v-if="!selected_player_by_admin">
-            <v-row justify="space-around">
-              <v-col cols="4">
-                <v-card>
-                  <v-card-title>Start values</v-card-title>
-                  <v-card-text
-                    ><v-text-field label="Chips:"></v-text-field>
-                    <v-text-field label="Small blind:"></v-text-field>
-                    <v-text-field label="Big blind:"></v-text-field>
-                  </v-card-text>
-                </v-card>
-              </v-col>
-              <v-col cols="4">
-                <v-card>
-                  <v-card-title>Increase blinds</v-card-title>
-                  <v-card-text
-                    ><v-text-field label="After n rounds:"></v-text-field>
-                    <v-text-field label="Amount:"></v-text-field>
-                  </v-card-text>
-                </v-card>
-              </v-col>
-              <v-col cols="4">
-                <v-card>
-                  <v-card-title>User settings </v-card-title>
-                  <v-card-text>
-                    <v-text-field label="Username:"></v-text-field>
-                  </v-card-text>
-                </v-card>
-                <v-container>
-                  <v-row>
-                    <v-col>
-                      <v-btn @click="saveSettings">Save</v-btn>
-                    </v-col>
-                    <v-col>
-                      <v-btn
-                        v-if="current_user.user_id == game_state.admin"
-                        @click="startGame"
-                        >Start game</v-btn
-                      >
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-col>
-            </v-row>
+    <div class="settings">
+      <v-container>
+        <div v-if="current_user.user_id == game_state.admin">
+          <div v-if="game_state.started">
+            <p>Card 1 / Card 2</p>
+            <v-btn>Fold</v-btn>
+            <v-btn>Check</v-btn>
+            <v-btn>Call</v-btn>
+            <v-btn>Raise</v-btn>
           </div>
-          <div v-if="selected_player_by_admin">
-            <v-card>
-              <v-card-title
-                >Adjust chips of player
-                {{ selected_player_by_admin.name }}</v-card-title
-              >
-              <v-card-text
-                ><v-text-field
-                  v-model="selected_player_by_admin.chips_bank"
-                  label="Chips:"
-                ></v-text-field>
-              </v-card-text>
-            </v-card>
+          <div v-else class="admin-settings">
+            <div v-if="!selected_player_by_admin">
+              <v-row justify="space-around">
+                <v-col cols="3">
+                  <v-card>
+                    <v-card-title>Blind settings</v-card-title>
+                    <v-card-text>
+                      <v-container grid-list-md>
+                        <v-layout justify-start align-start>
+                          <v-flex>
+                            <v-text-field
+                              dense
+                              class="blind-field"
+                              v-model="new_sb"
+                              label="Small:"
+                            ></v-text-field>
+                          </v-flex>
+                          <v-flex>
+                            <v-text-field
+                              dense
+                              class="blind-field"
+                              v-model="new_bb"
+                              label="Big:"
+                            ></v-text-field>
+                          </v-flex>
+                          <v-flex justify-start>
+                            <v-btn dense @click="addBlindStep"
+                              >Add blind step</v-btn
+                            >
+                          </v-flex>
+                        </v-layout>
+                      </v-container>
+                      <v-container>
+                        <p>Blind steps:</p>
+                        <v-chip
+                          v-for="(step, index) in game_state.blind_rules.steps"
+                          :key="index"
+                          close
+                          @click:close="removeBlindStep(step)"
+                          >{{ step.small }}/{{ step.big }}</v-chip
+                        >
+                      </v-container>
+
+                      <v-text-field
+                        v-model="game_state.blind_rules.raise_every_n_rounds"
+                        label="Increase after n rounds:"
+                      ></v-text-field>
+                    </v-card-text>
+                  </v-card>
+                </v-col>
+                <v-col cols="4">
+                  <v-card>
+                    <v-card-title>User settings </v-card-title>
+                    <v-card-text>
+                      <v-text-field
+                        v-model="current_user.name"
+                        label="Username:"
+                      ></v-text-field>
+                    </v-card-text>
+                  </v-card>
+                  <v-container>
+                    <v-btn
+                      v-if="current_user.user_id == game_state.admin"
+                      @click="startGame"
+                      >Start game</v-btn
+                    >
+                  </v-container>
+                </v-col>
+              </v-row>
+            </div>
+            <div v-if="selected_player_by_admin">
+              <v-card>
+                <v-card-title
+                  >Adjust chips of player
+                  {{ selected_player_by_admin.name }}</v-card-title
+                >
+                <v-card-text
+                  ><v-text-field
+                    v-model="selected_player_by_admin.chips_bank"
+                    label="Chips:"
+                  ></v-text-field>
+                </v-card-text>
+              </v-card>
+            </div>
           </div>
         </div>
-      </div>
-      <div v-if="current_user.user_id != game_state.admin">
-        Wait for the admin to start the game
-      </div>
-    </v-container>
+        <div v-if="current_user.user_id != game_state.admin">
+          Wait for the admin to start the game
+        </div>
+      </v-container>
+    </div>
   </div>
 </template>
 
@@ -159,12 +185,14 @@ export default {
             { small: 5, big: 10 },
             { small: 10, big: 20 }
           ],
-          raise_every_n_rounds: 0
+          raise_every_n_rounds: 3
         }
       },
-      current_user: this.$auth.user.sub,
+      current_user: { id: this.$auth.user.sub, name: "random name" },
       admin: this.$auth.user.sub,
-      selected_player_by_admin: null
+      selected_player_by_admin: null,
+      new_sb: 10,
+      new_bb: 20
     };
   },
   methods: {
@@ -173,7 +201,8 @@ export default {
     },
     saveSettings() {},
     selectPlayer(event) {
-      if (this.current_user === this.admin) {
+      console.log(this.current_user);
+      if (this.current_user.id === this.admin) {
         const selected_player_name = `${event.target.textContent
           .split(" ")
           .join("")}`;
@@ -187,6 +216,19 @@ export default {
       if (event.target.classList.contains("lobby")) {
         this.selected_player_by_admin = null;
       }
+    },
+    addBlindStep() {
+      this.game_state.blind_rules.steps.push({
+        small: this.new_sb,
+        big: this.new_bb
+      });
+      this.new_sb *= 2;
+      this.new_bb *= 2;
+    },
+    removeBlindStep(step) {
+      this.game_state.blind_rules.steps = this.game_state.blind_rules.steps.filter(
+        item => item !== step
+      );
     }
   },
   mounted() {}
