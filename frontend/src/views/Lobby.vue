@@ -77,6 +77,8 @@
 </template>
 
 <script type="text/javascript">
+import {io} from "socket.io-client";
+
 export default {
   name: "Lobby",
   data() {
@@ -92,6 +94,18 @@ export default {
       },
       current_user: { user_id: 123, name: "admin", chips: 5000 }
     };
+  },
+  async mounted() {
+    const socket = io.connect('http://localhost:8081', {
+      extraHeaders: { Authorization: `Bearer ${await this.$auth.getTokenSilently()}` }
+    });
+    socket.on('connect', () => {
+      console.log('Auth erfolgreich!');
+    })
+    .on('unauthorized', (msg) => {
+      console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
+      throw new Error(msg.data.type);
+    })
   },
   methods: {
     startGame() {
