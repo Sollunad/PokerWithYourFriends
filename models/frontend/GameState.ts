@@ -26,6 +26,7 @@ class Player {
 export class GameState {
   players: Player[];
   board: Card[];
+  admin: string;
   started: boolean;
   blind_rules: BlindRules;
 }
