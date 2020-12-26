@@ -1,3 +1,5 @@
+import {BlindRules} from "../shared/BlindRules";
+
 class Card {
     visible: boolean;
     value: string | undefined;
@@ -19,7 +21,10 @@ class Player {
     chips_bet: number;
 }
 
+
 export class GameState {
     players: Player[];
     board: Card[];
+    started: boolean;
+    blind_rules: BlindRules;
 }

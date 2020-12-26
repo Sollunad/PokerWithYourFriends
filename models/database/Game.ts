@@ -1,3 +1,5 @@
+import {BlindRules} from "../shared/BlindRules";
+
 class Player {
     // User ID extracted from the JWT sub
     user_id: string;
@@ -5,15 +7,6 @@ class Player {
     name: string;
     // Current count of chips, 0 when eliminated
     chips: number;
-}
-
-class BlindRules {
-    // List of small blinds progressing through the game
-    small: number[];
-    // List of big blinds progressing through the game
-    big: number[];
-    // Number of rounds, after which blinds are raised
-    raise_every_n_rounds: number;
 }
 
 export class Game {
@@ -34,5 +27,5 @@ export class Game {
     // Number of rounds played in the game
     rounds_played: number;
     // Blind rules
-    blindRule: BlindRules;
+    blind_rules: BlindRules;
 }
