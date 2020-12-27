@@ -1,3 +1,4 @@
-/.idea
+/.idea/*.xml
+/.idea/*.iml
 **/config.json
 **/node_modules
