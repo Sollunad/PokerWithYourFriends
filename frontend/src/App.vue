@@ -1,14 +1,18 @@
 <template>
   <div id="app">
-    <v-toolbar height="50" dense>
-      <v-toolbar-title><router-link to="/">Home</router-link></v-toolbar-title>
-      <v-spacer></v-spacer>
+    <v-app>
+      <v-toolbar height="50" dense>
+        <v-toolbar-title
+          ><router-link to="/">Home</router-link></v-toolbar-title
+        >
+        <v-spacer></v-spacer>
 
-      <v-btn v-if="!$auth.isAuthenticated" @click="login">Log in</v-btn>
-      <v-btn v-else @click="logout">Log out</v-btn>
-    </v-toolbar>
+        <v-btn v-if="!$auth.isAuthenticated" @click="login">Log in</v-btn>
+        <v-btn v-else @click="logout">Log out</v-btn>
+      </v-toolbar>
 
-    <router-view />
+      <router-view />
+    </v-app>
   </div>
 </template>
 
