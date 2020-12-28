@@ -3,7 +3,7 @@ exports.getFEGameState = getFEGameState;
 function getFEGameState(beGame, table, user_id, clientsForGame) {
     return {
         players: beGame.players.map(bePlayer => getFEPlayer(bePlayer, beGame, table, user_id, clientsForGame)),
-        board: table ? table.game.board : [],
+        board: table ? getBoardCards(table.game.board) : [],
         started: beGame.started,
         blind_rules: beGame.blind_rules,
         pot: table ? table.game.pot : 0,
@@ -49,6 +49,17 @@ function getPlayerCards(table_player, user_id) {
         ];
     }
     return table_player.cards.map(card => {
+        return {
+            visible: true,
+            value: card.charAt(0),
+            suit: card.charAt(1),
+        };
+    });
+}
+
+function getBoardCards(table_cards) {
+    if (!table_cards) return [];
+    return table_cards.map(card => {
         return {
             visible: true,
             value: card.charAt(0),

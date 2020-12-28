@@ -291,6 +291,7 @@ Player.prototype.Fold = function () {
     this.talked = true;
     //Mark the player as folded
     this.folded = true;
+    //TODO Spiel beenden, wenn nur noch ein Spieler übrig
     progress(this.table);
 };
 
