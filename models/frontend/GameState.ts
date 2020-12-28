@@ -15,6 +15,7 @@ class FEPlayer {
   is_dealer: boolean;
   is_bb: boolean;
   is_sb: boolean;
+  is_round_winner: boolean;
   is_out: boolean;
   has_fold: boolean;
   cards: Card[];
@@ -27,6 +28,7 @@ export class GameState {
   players: FEPlayer[];
   board: Card[];
   started: boolean;
+  round_running: boolean;
   blind_rules: BlindRules;
   pot: number;
 }

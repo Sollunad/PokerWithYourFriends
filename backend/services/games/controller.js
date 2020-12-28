@@ -4,8 +4,10 @@ const {Connector} = require("../../db/connector");
 exports.createNewGame = createNewGame;
 exports.joinGame = joinGame;
 exports.getGame = getGame;
+exports.getAdminGame = getAdminGame;
 exports.startGame = startGame;
 exports.adjustBlinds = adjustBlinds;
+exports.updateChipsForPlayer = updateChipsForPlayer;
 exports.setUsername = setUsername;
 
 async function createNewGame(creator_sub) {
@@ -68,6 +70,21 @@ async function getGame(game_code) {
     return gameForCode[0];
 }
 
+async function getAdminGame(game_code, user_sub) {
+    const connector = new Connector();
+    await connector.connect();
+    const games = connector.games();
+
+    const query = {
+        code: game_code,
+        admin: user_sub,
+    };
+
+    const gameForCode = await games.find(query).toArray();
+    if (!gameForCode.length) return;
+    return gameForCode[0];
+}
+
 async function startGame(game_code, user_sub) {
     const connector = new Connector();
     await connector.connect();
@@ -105,6 +122,31 @@ async function adjustBlinds(game_code, user_sub, blinds) {
     const updateQuery = {
         $set: {
             blind_rules: blinds,
+        }
+    };
+
+    const gameForCode = await games.find(query).toArray();
+    if (!gameForCode.length) return {db_status: 'error', error: 'Game not found'};
+    await games.updateOne(query, updateQuery);
+    return {db_status: 'success'};
+}
+
+async function updateChipsForPlayer(game_code, admin_sub, player_sub, chips) {
+    if (!chips) return;
+
+    const connector = new Connector();
+    await connector.connect();
+    const games = connector.games();
+
+    const query = {
+        code: game_code,
+        admin: admin_sub,
+        players: { $elemMatch: { user_id: player_sub } }
+    };
+
+    const updateQuery = {
+        $set: {
+            'players.$.chips': chips,
         }
     };
 
