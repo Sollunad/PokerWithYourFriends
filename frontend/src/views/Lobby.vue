@@ -137,7 +137,7 @@
             </v-slider>
             <v-layout row wrap justify-space-around>
               <v-flex md2>
-                <v-btn block>Fold</v-btn>
+                <v-btn @click="btnFold" block>Fold</v-btn>
               </v-flex>
               <v-flex md2>
                 <v-btn block>Check</v-btn>
@@ -266,23 +266,30 @@ export default {
       selected_player_by_admin: null,
       new_sb: 10,
       new_bb: 20,
-      raise_amount: 0
+      raise_amount: 0,
+      socket: undefined,
     };
   },
   async mounted() {
-    const socket = io.connect("http://localhost:8081", {
+    this.socket = io.connect("http://localhost:8081", {
       extraHeaders: {
-        Authorization: `Bearer ${await this.$auth.getTokenSilently()}`
+        Authorization: `Bearer ${await this.$auth.getTokenSilently()}`,
+        game_code: this.game_code,
       }
     });
-    socket
-      .on("connect", () => {
+    this.socket.on("connect", () => {
         console.log("Auth erfolgreich!");
-      })
+    });
+  },
+  computed: {
+    game_code() {
+      return this.$route.query.code;
+    }
   },
   methods: {
     startGame() {
       this.game_state.started = true;
+      this.socket.emit('message', {action: 'startGame'});
     },
     saveSettings() {},
     selectPlayer(event) {
@@ -307,17 +314,22 @@ export default {
       });
       this.new_sb *= 2;
       this.new_bb *= 2;
+      this.socket.emit('message', {action: 'adjustBlinds', blinds: this.game_state.blind_rules });
     },
     removeBlindStep(step) {
       this.game_state.blind_rules.steps = this.game_state.blind_rules.steps.filter(
         item => item !== step
       );
+      this.socket.emit('message', {action: 'adjustBlinds', blinds: this.game_state.blind_rules });
     },
     decrement() {
       this.raise_amount--;
     },
     increment() {
       this.raise_amount++;
+    },
+    btnFold() {
+      this.socket.emit('message', {action: 'fold'});
     }
   }
 };
