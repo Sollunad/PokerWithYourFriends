@@ -27,8 +27,18 @@ function getNewPlayer(user_sub, chips = 1000) {
 
 function getDefaultBlindRules() {
     return {
-        small: [5, 10, 15, 20, 30, 50, 75, 100, 200, 400],
-        big: [10, 20, 30, 40, 60, 100, 150, 200, 400, 800],
+        steps: [
+            { small: 5, big: 10 },
+            { small: 10, big: 20 },
+            { small: 15, big: 30 },
+            { small: 20, big: 40 },
+            { small: 30, big: 60 },
+            { small: 50, big: 100 },
+            { small: 75, big: 150 },
+            { small: 100, big: 200 },
+            { small: 200, big: 400 },
+            { small: 400, big: 800 },
+        ],
         raise_every_n_rounds: 10,
     }
 }

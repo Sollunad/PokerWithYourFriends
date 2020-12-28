@@ -1,6 +1,6 @@
 var poker = require('./lib/node-poker');
 
-var table = new poker.Table(50,100,2,10,100,1500);
+var table = new poker.Table('ABCD', 50, 100, 0);
 
 table.AddPlayer('A',1500);
 table.AddPlayer('B',1500);
@@ -29,7 +29,5 @@ table.players[2].Check();
 
 console.log(table.game);
 console.log(table.getCurrentPlayer());
-console.log(table.players[0].cards);
-console.log(table.players[1].cards);
-console.log(table.players[2].cards);
-console.log(table.getWinners());
+console.log(table.players[0]);
+console.log(table.gameWinners);

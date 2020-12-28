@@ -1,35 +1,18 @@
 var events = require('events');
 const _rankHands = require('./rank-hands');
 
-function Table(smallBlind, bigBlind, minPlayers, maxPlayers, minBuyIn, maxBuyIn) {
+function Table(game_code, smallBlind, bigBlind, dealer) {
+    this.game_code = game_code;
     this.smallBlind = smallBlind;
     this.bigBlind = bigBlind;
-    this.minPlayers = minPlayers;
-    this.maxPlayers = maxPlayers;
     this.players = [];
-    this.dealer = 0; //Track the dealer position between games
-    this.minBuyIn = minBuyIn;
-    this.maxBuyIn = maxBuyIn;
+    this.dealer = dealer;
     this.playersToRemove = [];
     this.playersToAdd = [];
     this.eventEmitter = new events.EventEmitter();
     this.lastAction = {};
     this.gameWinners = [];
     this.gameLosers = [];
-
-    //Validate acceptable value ranges.
-    var err;
-    if (minPlayers < 2) { //require at least two players to start a game.
-        err = new Error(101, 'Parameter [minPlayers] must be a postive integer of a minimum value of 2.');
-    } else if (maxPlayers > 10) { //hard limit of 10 players at a table.
-        err = new Error(102, 'Parameter [maxPlayers] must be a positive integer less than or equal to 10.');
-    } else if (minPlayers > maxPlayers) { //Without this we can never start a game!
-        err = new Error(103, 'Parameter [minPlayers] must be less than or equal to [maxPlayers].');
-    }
-
-    if (err) {
-        return err;
-    }
 }
 
 function Player(playerName, chips, table) {
@@ -379,10 +362,8 @@ Table.prototype.StartGame = function () {
 };
 
 Table.prototype.AddPlayer = function (playerName, chips) {
-    if (chips >= this.minBuyIn && chips <= this.maxBuyIn) {
-        var player = new Player(playerName, chips, this);
-        this.playersToAdd.push(player);
-    }
+    var player = new Player(playerName, chips, this);
+    this.playersToAdd.push(player);
 };
 Table.prototype.removePlayer = function (playerName) {
     for (var i in this.players) {

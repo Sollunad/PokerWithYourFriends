@@ -6,7 +6,7 @@
 </template>
 
 <script type="text/javascript">
-/* import {io} from "socket.io-client"; */
+import { io } from "socket.io-client";
 import Lobby from "../components/game/lobby/Lobby.vue";
 import Ingame from "../components/game/ingame/Ingame.vue";
 export default {
@@ -25,22 +25,21 @@ export default {
       user_id: this.$auth.user.sub,
       name: "random_name"
     });
-  }
-  /* async mounted() {
-    const socket = io.connect("http://localhost:8081", {
+  },
+  async mounted() {
+    this.socket = io.connect("http://localhost:8081", {
       extraHeaders: {
-        Authorization: `Bearer ${await this.$auth.getTokenSilently()}`
+        Authorization: `Bearer ${await this.$auth.getTokenSilently()}`,
+        game_code: this.game_code
       }
     });
-    socket
-      .on("connect", () => {
-        console.log("Auth erfolgreich!");
-      })
-      .on("unauthorized", msg => {
-        console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
-        throw new Error(msg.data.type);
-      });
-  }, */
+    this.socket.on("message", data => {
+      //this.game_state = data.game;
+      console.log(data.game);
+      if (this.form_username === "")
+        this.form_username = this.current_user.name;
+    });
+  }
 };
 </script>
 

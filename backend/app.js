@@ -7,8 +7,7 @@ const http = require("http");
 const https = require("https");
 const jwt = require("express-jwt");
 const jwks = require("jwks-rsa");
-// const io = require('socket.io');
-// const socketioJwt = require("socketio-jwt");
+const ws = require('./websocket/setup');
 
 serveHTTP();
 
@@ -56,26 +55,11 @@ app.post("/games/join", async function (req, res) {
 function serveHTTP() {
   const server = http.createServer(app);
   server.listen(8081);
-  // const ioServer = io(server, {
-  //     cors: {
-  //         origin: 'http://localhost:8080',
-  //         credentials: true,
-  //     },
-  // });
-  // ioServer.use(socketioJwt.authorize({
-  //     secret: 'dWJe1UoGnqIK0FDXzoBkoKYdasuyaWeM2u5VIBWsQ74RiEFunPvKUpRWW5bwHxTH',
-  //     auth_header_required: true,
-  //     handshake: true,
-  // }));
-  // ioServer.on('connection', (socket) => {
-  //     console.log('hello!', socket.decoded_token.name);
-  // });
-
-  console.log("Server läuft über HTTP auf Port 8081");
+  ws.start(server);
 }
 
 function serveHTTPS(credentials) {
   const server = https.createServer(credentials, app);
   server.listen(8080);
-  //websocket.start(server);
+  ws.start(server);
 }

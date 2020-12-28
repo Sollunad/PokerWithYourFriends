@@ -1,6 +1,6 @@
 import {BlindRules} from "../shared/BlindRules";
 
-class Player {
+class BEPlayer {
     // User ID extracted from the JWT sub
     user_id: string;
     // Player given display name
@@ -19,7 +19,7 @@ export class Game {
     // Timestamp when the last round finished
     last_round: Date | undefined;
     // Array of participating players
-    players: Player[];
+    players: BEPlayer[];
     // References user_id from admin player
     admin: string;
     // References seat_number from next dealer
