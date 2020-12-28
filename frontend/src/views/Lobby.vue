@@ -283,7 +283,7 @@ export default {
     });
     this.socket.on('message', (data) => {
       //this.game_state = data.game;
-      console.log(this.game_state);
+      console.log(data.game);
       if (this.form_username === '') this.form_username = this.current_user.name;
     })
   },
