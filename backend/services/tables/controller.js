@@ -4,12 +4,16 @@ const poker = require('../../node-poker/lib/node-poker');
 exports.createTable = createTable;
 exports.getTable = getTable;
 exports.processAndClearTable = processAndClearTable;
+exports.playMove = playMove;
 
 let tables = [];
 
 async function createTable(game_code, user_sub) {
     const beGame = await getAdminGame(game_code, user_sub);
     if (!beGame) return;
+
+    if (getTable(game_code)) return;
+
     const livingPlayers = beGame.players.filter(p => p.chips > 0);
     const blindStepNum = Math.floor(beGame.rounds_played / beGame.blind_rules.raise_every_n_rounds);
     const blindStep = beGame.blind_rules.steps[blindStepNum];
@@ -43,4 +47,21 @@ async function processAndClearTable(game_code, user_sub) {
     // TODO Dealer 1 hoch mod players, ausgeschiedene überspringen
 
     tables = tables.filter(t => t.game_code !== game_code);
+}
+
+function playMove(game_code, user_sub, move, value) {
+    const table = getTable(game_code);
+    if (!table) return;
+
+    const current_player = table.getCurrentPlayer();
+    if (current_player !== user_sub) return;
+
+    const player_object = table.players.find(p => p.playerName === user_sub);
+
+    switch (move) {
+        case 'fold': player_object.Fold(); return;
+        case 'check': player_object.Check(); return;
+        case 'call': player_object.Call(); return;
+        case 'raise': player_object.Bet(value); return;
+    }
 }

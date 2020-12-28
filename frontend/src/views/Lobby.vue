@@ -7,7 +7,7 @@
       fluid
       class="settings"
     >
-      <div v-if="current_user.user_id == game_state.admin">
+      <div>
         <div v-if="!selected_player_by_admin" class="admin-settings">
           <v-layout row wrap>
             <v-flex md8>
@@ -16,7 +16,7 @@
                 <v-card-text>
                   <v-container grid-list-md>
                     <v-layout row wrap>
-                      <v-flex xs8 md4>
+                      <v-flex v-if="isAdmin" xs8 md4>
                         <h5>Add blind steps:</h5>
                         <v-container>
                           <v-layout row wrap justify-space-around>
@@ -53,7 +53,7 @@
                                 .steps"
                               :key="index"
                             >
-                              <v-chip close @click:close="removeBlindStep(step)"
+                              <v-chip :close="isAdmin" @click:close="removeBlindStep(step)"
                                 >{{ step.small }}/{{ step.big }}</v-chip
                               >
                             </v-flex>
@@ -63,6 +63,7 @@
                       <v-flex md2>
                         <h5>Increase after n steps</h5>
                         <v-text-field
+                          :disabled="!isAdmin"
                           v-model="game_state.blind_rules.raise_every_n_rounds"
                         ></v-text-field>
                       </v-flex>
@@ -115,7 +116,33 @@
         Wait for the admin to start the game
       </div>
     </v-container>
-
+    <v-container
+            v-show="!game_state.started"
+            fluid
+            grid-list-md
+            class="lobby"
+            @click="returnToGeneral"
+    >
+      <v-layout row wrap>
+        <v-flex xs12>
+          <h2>Players in lobby:</h2>
+          <v-list>
+            <v-list-item
+                    @click="selectPlayer"
+                    dense
+                    v-for="player in game_state.players"
+                    :key="player.user_id"
+            >
+              <v-list-item-content>
+                {{ player.name }}
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-flex>
+      </v-layout>
+    </v-container>
+    <!-- ++++++++++++++++++++++++++++++ End of Settings ++++++++++++++++++++++++++++++-->
+    <!-- ++++++++++++++++++++++++++++++ Lobby / Table ++++++++++++++++++++++++++++++-->
     <v-container
       v-show="game_state && game_state.started"
       grid-list-md
@@ -123,42 +150,45 @@
       class="ingame_settings"
     >
       <v-layout row wrap>
-        <v-flex md6> </v-flex>
-        <v-flex md6>
-          <v-container grid-list-md>
-            <v-slider v-model="raise_amount" :min="0" :max="300">
-              <template v-slot:prepend>
-                <v-icon @click="decrement">
-                  mdi-minus
-                </v-icon>
-              </template>
+        <v-btn v-if="isAdmin && !game_state.round_running" @click="startRound" block>Start next round</v-btn>
+        <v-btn v-if="isAdmin && game_state.round_finished" @click="finishRound" block>Finish round</v-btn>
+        <v-container v-if="isTurn" grid-list-md>
+          <v-slider v-model="raise_amount" :min="minRaise" :max="maxRaise" step="5">
+            <template v-slot:prepend>
+              <v-icon @click="decrement">
+                mdi-minus
+              </v-icon>
+            </template>
 
-              <template v-slot:append>
-                <v-icon @click="increment">
-                  mdi-plus
-                </v-icon>
-              </template>
-            </v-slider>
-            <v-layout row wrap justify-space-around>
-              <v-flex md2>
-                <v-btn @click="btnFold" block>Fold</v-btn>
-              </v-flex>
-              <v-flex md2>
-                <v-btn block>Check</v-btn>
-              </v-flex>
-              <v-flex md2>
-                <v-btn block>Call</v-btn>
-              </v-flex>
-              <v-flex md2>
-                <v-btn block>Raise {{ raise_amount }}</v-btn>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-flex>
+            <template v-slot:append>
+              <v-icon @click="increment">
+                mdi-plus
+              </v-icon>
+            </template>
+          </v-slider>
+          <v-layout row wrap justify-space-around>
+            <v-flex md2>
+              <v-btn @click="btnFold" block>Fold</v-btn>
+            </v-flex>
+            <v-flex v-if="canCheck" @click="btnCheck" md2>
+              <v-btn block>Check</v-btn>
+            </v-flex>
+            <v-flex v-else-if="current_user.call_value < current_user.chips_bank" @click="btnCall" md2>
+              <v-btn block>Call {{ current_user.call_value }}</v-btn>
+            </v-flex>
+            <v-flex v-else @click="btnCall" md2>
+              <v-btn block color="red">Call All In</v-btn>
+            </v-flex>
+            <v-flex v-if="raise_amount === maxRaise" @click="btnRaise" md2>
+              <v-btn block color="red">Raise All In</v-btn>
+            </v-flex>
+            <v-flex v-else @click="btnRaise" md2>
+              <v-btn block>Raise {{ raise_amount }} => Bet {{ raise_amount + current_user.call_value }}</v-btn>
+            </v-flex>
+          </v-layout>
+        </v-container>
       </v-layout>
     </v-container>
-    <!-- ++++++++++++++++++++++++++++++ End of Settings ++++++++++++++++++++++++++++++-->
-    <!-- ++++++++++++++++++++++++++++++ Lobby/ Table ++++++++++++++++++++++++++++++-->
     <v-container
       v-show="game_state.started"
       fill-height
@@ -172,31 +202,6 @@
           <div class="table-right"></div></div
       ></v-row>
     </v-container>
-    <v-container
-      v-show="!game_state.started"
-      fluid
-      grid-list-md
-      class="lobby"
-      @click="returnToGeneral"
-    >
-      <v-layout row wrap>
-        <v-flex xs12>
-          <h2>Players in lobby:</h2>
-          <v-list>
-            <v-list-item
-              @click="selectPlayer"
-              dense
-              v-for="player in game_state.players"
-              :key="player.user_id"
-            >
-              <v-list-item-content>
-                {{ player.name }}
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-flex>
-      </v-layout>
-    </v-container>
     <!-- ++++++++++++++++++++++++++++++ End of Lobby/ Table ++++++++++++++++++++++++++++++-->
   </div>
 </template>
@@ -208,63 +213,7 @@ export default {
   name: "Lobby",
   data() {
     return {
-      game_state: {
-        players: [
-          {
-            name: "admin",
-            is_self: true,
-            is_turn: true,
-            is_connected: true,
-            is_admin: true,
-            is_dealer: true,
-            is_bb: false,
-            is_sb: false,
-            is_out: false,
-            has_fold: false,
-            cards: [
-              { card: { visible: false, value: "K", suit: "D" } },
-              { card: { visible: false, value: "K", suit: "D" } }
-            ],
-            chips_bank: 100,
-            chips_bet: 10,
-            pot: 0
-          },
-          {
-            name: "player2",
-            is_self: false,
-            is_turn: true,
-            is_connected: true,
-            is_admin: true,
-            is_dealer: true,
-            is_bb: false,
-            is_sb: false,
-            is_out: false,
-            has_fold: false,
-            cards: [
-              { card: { visible: false, value: "K", suit: "D" } },
-              { card: { visible: false, value: "K", suit: "D" } }
-            ],
-            chips_bank: 100,
-            chips_bet: 10,
-            pot: 0
-          }
-        ],
-        board: [
-          { card: { visible: false, value: "K", suit: "D" } },
-          { card: { visible: false, value: "K", suit: "D" } },
-          { card: { visible: false, value: "K", suit: "D" } },
-          { card: { visible: false, value: "K", suit: "D" } },
-          { card: { visible: false, value: "K", suit: "D" } }
-        ],
-        started: false,
-        blind_rules: {
-          steps: [
-            { small: 5, big: 10 },
-            { small: 10, big: 20 }
-          ],
-          raise_every_n_rounds: 3
-        }
-      },
+      game_state: undefined,
       admin: this.$auth.user.sub,
       selected_player_by_admin: null,
       form_username: '',
@@ -282,8 +231,7 @@ export default {
       }
     });
     this.socket.on('message', (data) => {
-      //this.game_state = data.game;
-      console.log(data.game);
+      this.game_state = data.game;
       if (this.form_username === '') this.form_username = this.current_user.name;
     })
   },
@@ -292,10 +240,23 @@ export default {
       return this.$route.query.code;
     },
     current_user() {
-      return this.game_state.players.find(p => p.is_self);
+      return this.game_state.players.find(p => p.is_self) || {};
     },
     isAdmin() {
       return this.current_user.is_admin;
+    },
+    isTurn() {
+      return this.current_user.is_turn;
+    },
+    canCheck() {
+      return this.current_user.call_value === 0;
+    },
+    minRaise() {
+      return this.game_state.min_raise;
+    },
+    maxRaise() {
+      console.log(this.current_user.chips_bank - this.current_user.call_value);
+      return this.current_user.chips_bank - this.current_user.call_value;
     }
   },
   methods: {
@@ -338,13 +299,28 @@ export default {
       this.socket.emit('message', {action: 'setUsername', name: this.form_username });
     },
     decrement() {
-      this.raise_amount--;
+      this.raise_amount -= 5;
     },
     increment() {
-      this.raise_amount++;
+      this.raise_amount += 5;
+    },
+    startRound() {
+      this.socket.emit('message', {action: 'startRound'});
+    },
+    finishRound() {
+      this.socket.emit('message', {action: 'finishRound'});
     },
     btnFold() {
-      this.socket.emit('message', {action: 'fold'});
+      this.socket.emit('message', {action: 'playMove', move: 'fold'});
+    },
+    btnCheck() {
+      this.socket.emit('message', {action: 'playMove', move: 'check'});
+    },
+    btnCall() {
+      this.socket.emit('message', {action: 'playMove', move: 'call'});
+    },
+    btnRaise() {
+      this.socket.emit('message', {action: 'playMove', move: 'raise', value: this.raise_amount });
     }
   },
   beforeDestroy() {

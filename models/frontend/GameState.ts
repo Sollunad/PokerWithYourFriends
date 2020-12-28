@@ -29,6 +29,9 @@ export class GameState {
   board: Card[];
   started: boolean;
   round_running: boolean;
+  round_finished: boolean;
   blind_rules: BlindRules;
   pot: number;
+  call_value: number;
+  min_raise: number;
 }
