@@ -3,6 +3,7 @@ const {Connector} = require("../../db/connector");
 
 exports.createNewGame = createNewGame;
 exports.joinGame = joinGame;
+exports.getGame = getGame;
 
 async function createNewGame(creator_sub) {
     const connector = new Connector();
@@ -48,4 +49,18 @@ async function joinGame(user_sub, game_code) {
         $push: { players: newP },
     };
     await games.updateOne(query, updateQuery);
+}
+
+async function getGame(game_code) {
+    const connector = new Connector();
+    await connector.connect();
+    const games = connector.games();
+
+    const query = {
+        code: game_code,
+    };
+
+    const gameForCode = await games.find(query).toArray();
+    if (!gameForCode.length) return;
+    return gameForCode[0];
 }

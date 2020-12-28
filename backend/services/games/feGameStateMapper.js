@@ -1,9 +1,11 @@
+exports.getFEGameState = getFEGameState;
+
 function getFEGameState(beGame, table, user_id) {
     return {
         players: beGame.players.map(bePlayer => getFEPlayer(bePlayer, beGame, table, user_id)),
         board: table ? table.game.board : [],
         started: beGame.started,
-        blindRules: beGame.blind_rules,
+        blind_rules: beGame.blind_rules,
         pot: table ? table.game.pot : 0,
     }
 }

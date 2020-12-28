@@ -261,7 +261,6 @@ export default {
           raise_every_n_rounds: 3
         }
       },
-      current_user: { id: this.$auth.user.sub, name: "random name" },
       admin: this.$auth.user.sub,
       selected_player_by_admin: null,
       new_sb: 10,
@@ -280,10 +279,17 @@ export default {
     this.socket.on("connect", () => {
         console.log("Auth erfolgreich!");
     });
+    this.socket.on('message', (data) => {
+      console.log(data.game);
+      //this.game_state = data.game;
+    })
   },
   computed: {
     game_code() {
       return this.$route.query.code;
+    },
+    current_user() {
+      return this.game_state.players.find(p => p.is_self);
     }
   },
   methods: {
