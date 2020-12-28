@@ -196,7 +196,7 @@
 </template>
 
 <script type="text/javascript">
-/* import {io} from "socket.io-client"; */
+import {io} from "socket.io-client";
 
 export default {
   name: "Lobby",
@@ -267,7 +267,7 @@ export default {
       raise_amount: 0
     };
   },
-  /* async mounted() {
+  async mounted() {
     const socket = io.connect("http://localhost:8081", {
       extraHeaders: {
         Authorization: `Bearer ${await this.$auth.getTokenSilently()}`
@@ -277,11 +277,7 @@ export default {
       .on("connect", () => {
         console.log("Auth erfolgreich!");
       })
-      .on("unauthorized", msg => {
-        console.log(`unauthorized: ${JSON.stringify(msg.data)}`);
-        throw new Error(msg.data.type);
-      });
-  }, */
+  },
   methods: {
     startGame() {
       this.game_state.started = true;

@@ -7,8 +7,8 @@ const http = require("http");
 const https = require("https");
 const jwt = require("express-jwt");
 const jwks = require("jwks-rsa");
-// const io = require('socket.io');
-// const socketioJwt = require("socketio-jwt");
+const io = require('socket.io');
+const socketioJwt = require("socketio-jwt");
 
 serveHTTP();
 
@@ -56,22 +56,30 @@ app.post("/games/join", async function (req, res) {
 function serveHTTP() {
   const server = http.createServer(app);
   server.listen(8081);
-  // const ioServer = io(server, {
-  //     cors: {
-  //         origin: 'http://localhost:8080',
-  //         credentials: true,
-  //     },
-  // });
-  // ioServer.use(socketioJwt.authorize({
-  //     secret: 'dWJe1UoGnqIK0FDXzoBkoKYdasuyaWeM2u5VIBWsQ74RiEFunPvKUpRWW5bwHxTH',
-  //     auth_header_required: true,
-  //     handshake: true,
-  // }));
-  // ioServer.on('connection', (socket) => {
-  //     console.log('hello!', socket.decoded_token.name);
-  // });
+  const ioServer = io(server, {
+      cors: {
+          origin: 'http://localhost:8080',
+          credentials: true,
+      },
+  });
 
-  console.log("Server läuft über HTTP auf Port 8081");
+  ioServer.use(socketioJwt.authorize({
+      secret: jwks.expressJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: "https://pwyf.eu.auth0.com/.well-known/jwks.json",
+      }),
+      auth_header_required: true,
+      handshake: true,
+  }));
+
+  ioServer.on('connection', (socket) => {
+    console.log('connected!');
+    socket.on('message', (message) => {
+      console.log('message', message);
+    });
+  })
 }
 
 function serveHTTPS(credentials) {
