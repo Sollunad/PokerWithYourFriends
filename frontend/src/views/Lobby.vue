@@ -1,197 +1,199 @@
 <template lang="html">
   <div class="game">
-    <v-container fill-height fluid class="ma-0 pa-0">
-      <v-row class="container-all flex-column">
-        <v-col class="ma-0 pa-0">
-          <div v-if="!game_state.started" class="settings">
-            <v-container grid-list-md>
-              <div v-if="current_user.user_id == game_state.admin">
-                <div class="admin-settings">
-                  <div v-if="!selected_player_by_admin">
+    <!-- ++++++++++++++++++++++++++++++ Settings ++++++++++++++++++++++++++++++-->
+    <v-container
+      v-show="!game_state.started"
+      grid-list-md
+      fluid
+      class="settings"
+    >
+      <div v-if="current_user.user_id == game_state.admin">
+        <div v-if="!selected_player_by_admin" class="admin-settings">
+          <v-layout row wrap>
+            <v-flex md8>
+              <v-card>
+                <v-card-title>Blind settings</v-card-title>
+                <v-card-text>
+                  <v-container grid-list-md>
                     <v-layout row wrap>
-                      <v-flex md8>
-                        <v-card>
-                          <v-card-title>Blind settings</v-card-title>
-                          <v-card-text>
-                            <v-container grid-list-md>
-                              <v-layout row wrap>
-                                <v-flex xs8 md4>
-                                  <h5>Add blind steps:</h5>
-                                  <v-container>
-                                    <v-layout row wrap justify-space-around>
-                                      <v-flex xs2>
-                                        <v-text-field
-                                          dense
-                                          class="blind-field"
-                                          v-model="new_sb"
-                                          label="Small:"
-                                        ></v-text-field>
-                                      </v-flex>
-                                      <v-flex xs2>
-                                        <v-text-field
-                                          dense
-                                          class="blind-field"
-                                          v-model="new_bb"
-                                          label="Big:"
-                                        ></v-text-field>
-                                      </v-flex>
-                                      <v-flex xs4>
-                                        <v-btn dense @click="addBlindStep"
-                                          >Add</v-btn
-                                        >
-                                      </v-flex>
-                                    </v-layout>
-                                  </v-container>
-                                </v-flex>
-                                <v-flex xs12 md6>
-                                  <h5>Current blind steps:</h5>
-                                  <v-container>
-                                    <v-layout row wrap>
-                                      <v-flex
-                                        xs3
-                                        sm2
-                                        v-for="(step, index) in game_state
-                                          .blind_rules.steps"
-                                        :key="index"
-                                      >
-                                        <!-- <p>Blind steps:</p> -->
-                                        <v-chip
-                                          close
-                                          @click:close="removeBlindStep(step)"
-                                          >{{ step.small }}/{{
-                                            step.big
-                                          }}</v-chip
-                                        >
-                                      </v-flex>
-                                    </v-layout>
-                                  </v-container>
-                                </v-flex>
-                                <v-flex md2>
-                                  <h5>Increase after n steps</h5>
-                                  <v-text-field
-                                    v-model="
-                                      game_state.blind_rules
-                                        .raise_every_n_rounds
-                                    "
-                                  ></v-text-field>
-                                </v-flex>
-                              </v-layout>
-                            </v-container>
-                          </v-card-text>
-                        </v-card>
-                      </v-flex>
-
-                      <v-flex md4>
-                        <v-card>
-                          <v-card-title>User settings </v-card-title>
-                          <v-card-text>
-                            <v-text-field
-                              v-model="current_user.name"
-                              label="Username:"
-                            ></v-text-field>
-                          </v-card-text>
-                        </v-card>
+                      <v-flex xs8 md4>
+                        <h5>Add blind steps:</h5>
                         <v-container>
-                          <v-btn
-                            v-if="current_user.user_id == game_state.admin"
-                            @click="startGame"
-                            >Start game</v-btn
-                          >
+                          <v-layout row wrap justify-space-around>
+                            <v-flex xs2>
+                              <v-text-field
+                                dense
+                                class="blind-field"
+                                v-model="new_sb"
+                                label="Small:"
+                              ></v-text-field>
+                            </v-flex>
+                            <v-flex xs2>
+                              <v-text-field
+                                dense
+                                class="blind-field"
+                                v-model="new_bb"
+                                label="Big:"
+                              ></v-text-field>
+                            </v-flex>
+                            <v-flex xs4>
+                              <v-btn dense @click="addBlindStep">Add</v-btn>
+                            </v-flex>
+                          </v-layout>
                         </v-container>
                       </v-flex>
-                    </v-layout>
-                  </div>
-                  <div v-if="selected_player_by_admin">
-                    <v-card>
-                      <v-card-title
-                        >Adjust chips of player
-                        {{ selected_player_by_admin.name }}</v-card-title
-                      >
-                      <v-card-text
-                        ><v-text-field
-                          v-model="selected_player_by_admin.chips_bank"
-                          label="Chips:"
+                      <v-flex xs12 md6>
+                        <h5>Current blind steps:</h5>
+                        <v-container>
+                          <v-layout row wrap>
+                            <v-flex
+                              xs3
+                              sm2
+                              v-for="(step, index) in game_state.blind_rules
+                                .steps"
+                              :key="index"
+                            >
+                              <v-chip close @click:close="removeBlindStep(step)"
+                                >{{ step.small }}/{{ step.big }}</v-chip
+                              >
+                            </v-flex>
+                          </v-layout>
+                        </v-container>
+                      </v-flex>
+                      <v-flex md2>
+                        <h5>Increase after n steps</h5>
+                        <v-text-field
+                          v-model="game_state.blind_rules.raise_every_n_rounds"
                         ></v-text-field>
-                      </v-card-text>
-                    </v-card>
-                  </div>
-                </div>
-              </div>
-              <div v-if="current_user.user_id != game_state.admin">
-                Wait for the admin to start the game
-              </div>
-            </v-container>
-          </div>
-          <div v-if="game_state.started" class="ingame_settings">
-            <v-container>
-              <v-layout row wrap>
-                <v-flex md6> </v-flex>
-                <v-flex md6>
-                  <v-container grid-list-md>
-                    <v-slider v-model="raise_amount" :min="0" :max="300">
-                      <template v-slot:prepend>
-                        <v-icon :color="color" @click="decrement">
-                          mdi-minus
-                        </v-icon>
-                      </template>
-
-                      <template v-slot:append>
-                        <v-icon :color="color" @click="increment">
-                          mdi-plus
-                        </v-icon>
-                      </template>
-                    </v-slider>
-                    <v-layout row wrap justify-space-around>
-                      <v-flex md2>
-                        <v-btn block>Fold</v-btn>
-                      </v-flex>
-                      <v-flex md2>
-                        <v-btn block>Check</v-btn>
-                      </v-flex>
-                      <v-flex md2>
-                        <v-btn block>Call</v-btn>
-                      </v-flex>
-                      <v-flex md2>
-                        <v-btn block>Raise {{ raise_amount }}</v-btn>
                       </v-flex>
                     </v-layout>
                   </v-container>
-                </v-flex>
-              </v-layout>
-            </v-container>
-          </div>
-        </v-col>
+                </v-card-text>
+              </v-card>
+            </v-flex>
 
-        <v-col class="ma-0 pa-0">
-          <div v-if="game_state.started" class="ingame">
-            <v-container fill-height fluid>
-              <v-row>
-                <div class="table my-0 mx-auto ">
-                  <div class="table-left"></div>
-                  <div class="table-right"></div></div
-              ></v-row>
-            </v-container>
-          </div>
-          <div v-else class="lobby" @click="returnToGeneral">
-            <v-container>
-              <h2>Players in lobby:</h2>
-              <v-list>
-                <v-list-item
-                  @click="selectPlayer"
-                  dense
-                  v-for="player in game_state.players"
-                  :key="player.user_id"
+            <v-flex md4>
+              <v-card>
+                <v-card-title>User settings </v-card-title>
+                <v-card-text>
+                  <v-text-field
+                    v-model="current_user.name"
+                    label="Username:"
+                  ></v-text-field>
+                </v-card-text>
+              </v-card>
+              <v-container>
+                <v-btn
+                  v-if="current_user.user_id == game_state.admin"
+                  @click="startGame"
+                  >Start game</v-btn
                 >
-                  <v-list-item-content>
-                    {{ player.name }}
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-            </v-container>
-          </div>
-        </v-col>
-      </v-row>
+              </v-container>
+            </v-flex>
+          </v-layout>
+        </div>
+        <div v-if="selected_player_by_admin">
+          <v-card>
+            <v-card-title
+              >Adjust chips of player
+              {{ selected_player_by_admin.name }}</v-card-title
+            >
+            <v-card-text
+              ><v-text-field
+                v-model="selected_player_by_admin.chips_bank"
+                label="Chips:"
+              ></v-text-field>
+            </v-card-text>
+          </v-card>
+        </div>
+      </div>
+      <div v-if="current_user.user_id != game_state.admin">
+        Wait for the admin to start the game
+      </div>
     </v-container>
+
+    <v-container
+      v-show="game_state.started"
+      grid-list-md
+      fluid
+      class="ingame_settings"
+    >
+      <v-layout row wrap>
+        <v-flex md6> </v-flex>
+        <v-flex md6>
+          <v-container grid-list-md>
+            <v-slider v-model="raise_amount" :min="0" :max="300">
+              <template v-slot:prepend>
+                <v-icon @click="decrement">
+                  mdi-minus
+                </v-icon>
+              </template>
+
+              <template v-slot:append>
+                <v-icon @click="increment">
+                  mdi-plus
+                </v-icon>
+              </template>
+            </v-slider>
+            <v-layout row wrap justify-space-around>
+              <v-flex md2>
+                <v-btn block>Fold</v-btn>
+              </v-flex>
+              <v-flex md2>
+                <v-btn block>Check</v-btn>
+              </v-flex>
+              <v-flex md2>
+                <v-btn block>Call</v-btn>
+              </v-flex>
+              <v-flex md2>
+                <v-btn block>Raise {{ raise_amount }}</v-btn>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-flex>
+      </v-layout>
+    </v-container>
+    <!-- ++++++++++++++++++++++++++++++ End of Settings ++++++++++++++++++++++++++++++-->
+    <!-- ++++++++++++++++++++++++++++++ Lobby/ Table ++++++++++++++++++++++++++++++-->
+    <v-container
+      v-show="game_state.started"
+      fill-height
+      fluid
+      grid-list-md
+      class="ingame"
+    >
+      <v-row>
+        <div class="table my-0 mx-auto ">
+          <div class="table-left"></div>
+          <div class="table-right"></div></div
+      ></v-row>
+    </v-container>
+    <v-container
+      v-show="!game_state.started"
+      fluid
+      grid-list-md
+      class="lobby"
+      @click="returnToGeneral"
+    >
+      <v-layout row wrap>
+        <v-flex xs12>
+          <h2>Players in lobby:</h2>
+          <v-list>
+            <v-list-item
+              @click="selectPlayer"
+              dense
+              v-for="player in game_state.players"
+              :key="player.user_id"
+            >
+              <v-list-item-content>
+                {{ player.name }}
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-flex>
+      </v-layout>
+    </v-container>
+    <!-- ++++++++++++++++++++++++++++++ End of Lobby/ Table ++++++++++++++++++++++++++++++-->
   </div>
 </template>
 
@@ -321,39 +323,28 @@ export default {
     increment() {
       this.raise_amount++;
     }
-  },
-  computed: {
-    color() {
-      return "red";
-    }
   }
 };
 </script>
 
 <style lang="css" scoped>
-h4 {
-  margin-bottom: 1rem;
-  text-align: center;
-}
 .game {
   height: 100%;
   color: white;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  text-align: left;
 }
 
-.container-all {
-  height: 100%;
-}
 .lobby,
 .ingame {
   background-color: #2c3e50;
-  height: 100%;
+  width: 100%;
 }
 
 .settings,
 .ingame_settings {
   background-color: #42b983;
-  text-align: left;
-  height: 100%;
 }
 
 .table {
@@ -362,7 +353,8 @@ h4 {
   background-color: white;
   position: relative;
 }
-.table-left {
+.table-left,
+.table-right {
   height: 200px;
   width: 200px;
   border-radius: 50%;
@@ -371,11 +363,6 @@ h4 {
   transform: translateX(-50%);
 }
 .table-right {
-  height: 200px;
-  width: 200px;
-  border-radius: 50%;
-  position: absolute;
-  background-color: white;
   right: 0;
   transform: translateX(50%);
 }

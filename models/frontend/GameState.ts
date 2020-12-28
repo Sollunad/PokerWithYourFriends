@@ -20,7 +20,7 @@ class Player {
   cards: Card[];
   chips_bank: number;
   chips_bet: number;
-  pot: number;
+  chips_pot: number;
 }
 
 export class GameState {
@@ -29,4 +29,5 @@ export class GameState {
   admin: string;
   started: boolean;
   blind_rules: BlindRules;
+  pot: number;
 }
