@@ -1,5 +1,5 @@
 <template>
-  <div v-if="$auth.isAuthenticated" class="home">
+  <div v-if="$auth.isAuthenticated">
     <v-container>
       <v-btn @click="createLobby" elevation="5" outlined medium>
         Create new lobby</v-btn
@@ -27,18 +27,25 @@ export default {
       game_code: ""
     };
   },
+  beforeCreate() {
+    this.$store.commit("loginUser", {
+      user_id: this.$auth.user.sub,
+      name: "random_name"
+    });
+  },
   methods: {
     async createLobby() {
       const response = await fetch(this, "games", "post", {});
-      console.log(response);
-      await this.$router.push(`/lobby?code=${response.game_code}`);
+      this.$store.commit("createLobby", {
+        admin_id: this.$store.state.current_user.user_id
+      });
+      await this.$router.push(`/game?code=${response.game_code}`);
     },
     async joinGame() {
-      const response = await fetch(this, "games/join", "post", {
+      await fetch(this, "games/join", "post", {
         game_code: this.game_code
       });
-      console.log(response);
-      await this.$router.push(`/lobby?code=${this.game_code}`);
+      await this.$router.push(`/game?code=${this.game_code}`);
     }
   }
 };

@@ -1,17 +1,20 @@
 <template>
   <div id="app">
     <v-app>
-      <v-toolbar height="50" dense>
+      <v-app-bar height="50" dense app>
         <v-toolbar-title
-          ><router-link to="/">Home</router-link></v-toolbar-title
+          ><router-link to="/"
+            >PlayPokerWithYourFriends</router-link
+          ></v-toolbar-title
         >
         <v-spacer></v-spacer>
 
         <v-btn v-if="!$auth.isAuthenticated" @click="login">Log in</v-btn>
         <v-btn v-else @click="logout">Log out</v-btn>
-      </v-toolbar>
-
-      <router-view />
+      </v-app-bar>
+      <v-content>
+        <router-view />
+      </v-content>
     </v-app>
   </div>
 </template>
@@ -35,20 +38,17 @@ export default {
 </script>
 
 <style>
+:root {
+  --clr-grey: #2c3e50;
+  --clr-green: #42b983;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+  color: var(--clr-grey);
+  background-color: var(--clr-green);
 }
 </style>
