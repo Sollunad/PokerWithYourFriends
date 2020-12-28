@@ -12,38 +12,43 @@
     <!-- ++++++++++++++++++++++++++++++ Settings ++++++++++++++++++++++++++++++-->
     <v-container grid-list-md fluid class="ingame_settings">
       <v-layout row wrap>
-        <v-flex md6> </v-flex>
-        <v-flex md6>
-          <v-container grid-list-md>
-            <v-slider v-model="raise_amount" :min="0" :max="300">
-              <template v-slot:prepend>
-                <v-icon @click="decrement_raise">
-                  mdi-minus
-                </v-icon>
-              </template>
+        <v-btn v-if="isAdmin && !round_running" @click="startRound" block>Start next round</v-btn>
+        <v-btn v-if="isAdmin && round_finished" @click="finishRound" block>Finish round</v-btn>
+        <v-container v-if="isTurn" grid-list-md>
+          <v-slider v-model="raise_amount" :min="minRaise" :max="maxRaise" step="5">
+            <template v-slot:prepend>
+              <v-icon @click="decrement_raise">
+                mdi-minus
+              </v-icon>
+            </template>
 
-              <template v-slot:append>
-                <v-icon @click="increment_raise">
-                  mdi-plus
-                </v-icon>
-              </template>
-            </v-slider>
-            <v-layout row wrap justify-space-around>
-              <v-flex md2>
-                <v-btn block>Fold</v-btn>
-              </v-flex>
-              <v-flex md2>
-                <v-btn block>Check</v-btn>
-              </v-flex>
-              <v-flex md2>
-                <v-btn block>Call</v-btn>
-              </v-flex>
-              <v-flex md2>
-                <v-btn block>Raise {{ raise_amount }}</v-btn>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-flex>
+            <template v-slot:append>
+              <v-icon @click="increment_raise">
+                mdi-plus
+              </v-icon>
+            </template>
+          </v-slider>
+          <v-layout row wrap justify-space-around>
+            <v-flex md2>
+              <v-btn @click="btnFold" block>Fold</v-btn>
+            </v-flex>
+            <v-flex v-if="canCheck" @click="btnCheck" md2>
+              <v-btn block>Check</v-btn>
+            </v-flex>
+            <v-flex v-else-if="canCallWithoutAllIn" @click="btnCall" md2>
+              <v-btn block>{{callButtonText}}</v-btn>
+            </v-flex>
+            <v-flex v-else @click="btnCall" md2>
+              <v-btn block color="red">Call All In</v-btn>
+            </v-flex>
+            <v-flex v-if="raise_amount === maxRaise" @click="btnRaise" md2>
+              <v-btn block color="red">Raise All In</v-btn>
+            </v-flex>
+            <v-flex v-else @click="btnRaise" md2>
+              <v-btn block>{{raiseButtonText}}</v-btn>
+            </v-flex>
+          </v-layout>
+        </v-container>
       </v-layout>
     </v-container>
     <!-- ++++++++++++++++++ End of Settings ++++++++++++++++++-->
@@ -58,23 +63,64 @@ export default {
       raise_amount: 0
     };
   },
-  methods: {
-    decrement_raise() {
-      this.raise_amount--;
+  computed: {
+    minRaise() {
+      return this.$store.state.game_state.min_raise;
     },
-    increment_raise() {
-      this.raise_amount++;
+    maxRaise() {
+      return this.$store.getters.current_user.chips_bank - this.$store.getters.current_user.call_value;
+    },
+    round_running() {
+      return this.$store.state.game_state.round_running;
+    },
+    round_finished() {
+      return this.$store.state.game_state.round_finished;
+    },
+    isAdmin() {
+      return this.$store.getters.current_user.is_admin;
+    },
+    isTurn() {
+      return this.$store.getters.current_user.is_turn;
+    },
+    canCheck() {
+      return this.$store.getters.current_user.call_value === 0;
+    },
+    canCallWithoutAllIn() {
+      return this.$store.getters.current_user.call_value < this.$store.getters.current_user.chips_bank;
+    },
+    callButtonText() {
+      return `Call ${this.$store.getters.current_user.call_value}`;
+    },
+    raiseButtonText() {
+      return `Raise ${this.raise_amount} => Bet ${this.raise_amount + this.$store.getters.current_user.call_value}`;
     }
   },
-  beforeCreate() {
-    this.$store.commit("loginUser", {
-      user_id: this.$auth.user.sub,
-      name: "random_name"
-    });
+  methods: {
+    decrement_raise() {
+      this.raise_amount -= 5;
+    },
+    increment_raise() {
+      this.raise_amount += 5;
+    },
+    startRound() {
+      this.$store.state.socket.emit('message', {action: 'startRound'});
+    },
+    finishRound() {
+      this.$store.state.socket.emit('message', {action: 'finishRound'});
+    },
+    btnFold() {
+      this.$store.state.socket.emit('message', {action: 'playMove', move: 'fold'});
+    },
+    btnCheck() {
+      this.$store.state.socket.emit('message', {action: 'playMove', move: 'check'});
+    },
+    btnCall() {
+      this.$store.state.socket.emit('message', {action: 'playMove', move: 'call'});
+    },
+    btnRaise() {
+      this.$store.state.socket.emit('message', {action: 'playMove', move: 'raise', value: this.raise_amount });
+    }
   },
-  destroyed() {
-    this.$store.commit("startGame");
-  }
 };
 </script>
 

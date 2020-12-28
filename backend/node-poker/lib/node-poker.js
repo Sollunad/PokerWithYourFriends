@@ -166,7 +166,7 @@ function progress(table) {
 
             if (table.game.roundName === 'River') {
                 table.game.roundName = 'Showdown';
-                this.currentPlayer = -1;
+                table.currentPlayer = -1;
                 //Evaluate each hand
                 for (j = 0; j < table.players.length; j += 1) {
                     cards = table.players[j].cards.concat(table.game.board);

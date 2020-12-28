@@ -27,18 +27,9 @@ export default {
       game_code: ""
     };
   },
-  beforeCreate() {
-    this.$store.commit("loginUser", {
-      user_id: this.$auth.user.sub,
-      name: "random_name"
-    });
-  },
   methods: {
     async createLobby() {
       const response = await fetch(this, "games", "post", {});
-      this.$store.commit("createLobby", {
-        admin_id: this.$store.state.current_user.user_id
-      });
       await this.$router.push(`/game?code=${response.game_code}`);
     },
     async joinGame() {

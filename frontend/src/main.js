@@ -24,87 +24,39 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: {
-    players: [
-      {
-        name: "admin",
-        is_self: true,
-        is_turn: true,
-        is_connected: true,
-        is_admin: true,
-        is_dealer: true,
-        is_bb: false,
-        is_sb: false,
-        is_out: false,
-        has_fold: false,
-        cards: [
-          { card: { visible: false, value: "K", suit: "D" } },
-          { card: { visible: false, value: "K", suit: "D" } }
-        ],
-        chips_bank: 100,
-        chips_bet: 10,
-        pot: 0
-      },
-      {
-        name: "player2",
-        is_self: false,
-        is_turn: true,
-        is_connected: true,
-        is_admin: true,
-        is_dealer: true,
-        is_bb: false,
-        is_sb: false,
-        is_out: false,
-        has_fold: false,
-        cards: [
-          { card: { visible: false, value: "K", suit: "D" } },
-          { card: { visible: false, value: "K", suit: "D" } }
-        ],
-        chips_bank: 100,
-        chips_bet: 10,
-        pot: 0
-      }
-    ],
-    board: [
-      { card: { visible: false, value: "K", suit: "D" } },
-      { card: { visible: false, value: "K", suit: "D" } },
-      { card: { visible: false, value: "K", suit: "D" } },
-      { card: { visible: false, value: "K", suit: "D" } },
-      { card: { visible: false, value: "K", suit: "D" } }
-    ],
-    started: false,
-    blind_rules: {
-      steps: [
-        { small: 5, big: 10 },
-        { small: 10, big: 20 }
-      ],
-      raise_every_n_rounds: 3
-    },
-    current_user: null,
-    admin_id: null
+    game_state: undefined,
+    socket: undefined,
+    form_username: '',
+  },
+  getters: {
+    current_user(state) {
+      return state.game_state.players.find(p => p.is_self) || {};
+    }
   },
   mutations: {
-    startGame(state) {
-      state.started = !state.started;
+    setGameState(state, { game_state }) {
+      state.game_state = game_state;
     },
     addBlindStep(state, { small, big }) {
-      state.blind_rules.steps.push({ small, big });
+      state.game_state.blind_rules.steps.push({ small, big });
+      state.game_state.blind_rules.steps.sort((a, b) => a.small - b.small);
     },
     removeBlindStep(state, { step }) {
-      state.blind_rules.steps = state.blind_rules.steps.filter(
+      state.game_state.blind_rules.steps = state.game_state.blind_rules.steps.filter(
         item => item !== step
       );
     },
-    loginUser(state, { user_id, name }) {
-      state.current_user = { user_id, name };
+    setSocket(state, { socket }) {
+      state.socket = socket;
     },
-    logoutUser(state) {
-      state.current_user = null;
-    },
-    createLobby(state, { admin_id }) {
-      state.admin_id = admin_id;
-    },
-    closeLobby(state) {
-      state.admin_id = null;
+    setFormUsername(state, { name }) {
+      state.form_username = name;
+    }
+  },
+  actions: {
+    updateFormUsernameFromGameState(store) {
+      const gameStateUsername = store.getters.current_user.name;
+      if (store.state.form_username === '') store.commit('setFormUsername', { name: gameStateUsername });
     }
   }
 });

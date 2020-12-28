@@ -213,115 +213,17 @@ export default {
   name: "Lobby",
   data() {
     return {
-      game_state: undefined,
-      admin: this.$auth.user.sub,
-      selected_player_by_admin: null,
       form_username: '',
-      new_sb: 10,
-      new_bb: 20,
-      raise_amount: 0,
-      socket: undefined,
     };
   },
-  async mounted() {
-    this.socket = io.connect("http://localhost:8081", {
-      extraHeaders: {
-        Authorization: `Bearer ${await this.$auth.getTokenSilently()}`,
-        game_code: this.game_code,
-      }
-    });
-    this.socket.on('message', (data) => {
-      this.game_state = data.game;
-      if (this.form_username === '') this.form_username = this.current_user.name;
-    })
-  },
   computed: {
-    game_code() {
-      return this.$route.query.code;
-    },
-    current_user() {
-      return this.game_state.players.find(p => p.is_self) || {};
-    },
-    isAdmin() {
-      return this.current_user.is_admin;
-    },
-    isTurn() {
-      return this.current_user.is_turn;
-    },
-    canCheck() {
-      return this.current_user.call_value === 0;
-    },
-    minRaise() {
-      return this.game_state.min_raise;
-    },
-    maxRaise() {
-      console.log(this.current_user.chips_bank - this.current_user.call_value);
-      return this.current_user.chips_bank - this.current_user.call_value;
-    }
+
+
   },
   methods: {
-    startGame() {
-      this.socket.emit('message', {action: 'startGame'});
-    },
-    selectPlayer(event) {
-      if (this.current_user.id === this.admin) {
-        const selected_player_name = `${event.target.textContent
-          .split(" ")
-          .join("")}`;
-        this.selected_player_by_admin = this.game_state.players.filter(
-          player => player.name === selected_player_name
-        )[0];
-      }
-    },
-    returnToGeneral(event) {
-      if (event.target.classList.contains("lobby")) {
-        this.selected_player_by_admin = null;
-      }
-    },
-    addBlindStep() {
-      this.game_state.blind_rules.steps.push({
-        small: this.new_sb,
-        big: this.new_bb
-      });
-      this.game_state.blind_rules.steps.sort((a, b) => a.small - b.small);
-      this.new_sb *= 2;
-      this.new_bb *= 2;
-    },
-    removeBlindStep(step) {
-      this.game_state.blind_rules.steps = this.game_state.blind_rules.steps.filter(
-        item => item !== step
-      );
-    },
-    saveBlinds() {
-      this.socket.emit('message', {action: 'adjustBlinds', blinds: this.game_state.blind_rules });
-    },
     saveUsername() {
       this.socket.emit('message', {action: 'setUsername', name: this.form_username });
     },
-    decrement() {
-      this.raise_amount -= 5;
-    },
-    increment() {
-      this.raise_amount += 5;
-    },
-    startRound() {
-      this.socket.emit('message', {action: 'startRound'});
-    },
-    finishRound() {
-      this.socket.emit('message', {action: 'finishRound'});
-    },
-    btnFold() {
-      this.socket.emit('message', {action: 'playMove', move: 'fold'});
-    },
-    btnCheck() {
-      this.socket.emit('message', {action: 'playMove', move: 'check'});
-    },
-    btnCall() {
-      this.socket.emit('message', {action: 'playMove', move: 'call'});
-    },
-    btnRaise() {
-      this.socket.emit('message', {action: 'playMove', move: 'raise', value: this.raise_amount });
-    }
   },
   beforeDestroy() {
       this.socket.disconnect();

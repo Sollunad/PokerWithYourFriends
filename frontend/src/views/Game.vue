@@ -1,7 +1,7 @@
 <template lang="html">
   <div class="full-height">
-    <lobby v-if="!gameHasStarted"></lobby>
-    <ingame v-else></ingame>
+    <lobby v-if="showLobby"></lobby>
+    <ingame v-if="showIngame"></ingame>
   </div>
 </template>
 
@@ -9,6 +9,7 @@
 import { io } from "socket.io-client";
 import Lobby from "../components/game/lobby/Lobby.vue";
 import Ingame from "../components/game/ingame/Ingame.vue";
+
 export default {
   name: "Game",
   components: {
@@ -16,29 +17,36 @@ export default {
     Lobby
   },
   computed: {
-    gameHasStarted() {
-      return this.$store.state.started;
-    }
-  },
-  beforeCreate() {
-    this.$store.commit("loginUser", {
-      user_id: this.$auth.user.sub,
-      name: "random_name"
-    });
+    gameHasLoaded() {
+      return !!this.$store.state.game_state;
+    },
+    showLobby() {
+      return this.gameHasLoaded && !this.$store.state.game_state.started;
+    },
+    showIngame() {
+      return this.gameHasLoaded && this.$store.state.game_state.started;
+    },
+    game_code() {
+      return this.$route.query.code;
+    },
   },
   async mounted() {
-    this.socket = io.connect("http://localhost:8081", {
+    const socket = io.connect("http://localhost:8081", {
       extraHeaders: {
         Authorization: `Bearer ${await this.$auth.getTokenSilently()}`,
-        game_code: this.game_code
+        game_code: this.game_code,
       }
     });
-    this.socket.on("message", data => {
-      //this.game_state = data.game;
-      console.log(data.game);
-      if (this.form_username === "")
-        this.form_username = this.current_user.name;
+    socket.on('message', (data) => {
+      this.$store.commit('setGameState', { game_state: data.game });
+      console.log(this.$store.state.game_state);
+      this.$store.dispatch('updateFormUsernameFromGameState');
     });
+    this.$store.commit('setSocket', { socket: socket });
+  },
+  beforeDestroy() {
+    this.$store.state.socket.disconnect();
+    this.$store.commit('setSocket', { socket: undefined });
   }
 };
 </script>
