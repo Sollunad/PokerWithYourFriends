@@ -4,6 +4,9 @@ const {Connector} = require("../../db/connector");
 exports.createNewGame = createNewGame;
 exports.joinGame = joinGame;
 exports.getGame = getGame;
+exports.startGame = startGame;
+exports.adjustBlinds = adjustBlinds;
+exports.setUsername = setUsername;
 
 async function createNewGame(creator_sub) {
     const connector = new Connector();
@@ -63,4 +66,74 @@ async function getGame(game_code) {
     const gameForCode = await games.find(query).toArray();
     if (!gameForCode.length) return;
     return gameForCode[0];
+}
+
+async function startGame(game_code, user_sub) {
+    const connector = new Connector();
+    await connector.connect();
+    const games = connector.games();
+
+    const query = {
+        code: game_code,
+        admin: user_sub,
+    };
+
+    const updateQuery = {
+        $set: {
+            started: true,
+        }
+    };
+
+    const gameForCode = await games.find(query).toArray();
+    if (!gameForCode.length) return {db_status: 'error', error: 'Game not found'};
+    await games.updateOne(query, updateQuery);
+    return {db_status: 'success'};
+}
+
+async function adjustBlinds(game_code, user_sub, blinds) {
+    if (!blinds) return;
+
+    const connector = new Connector();
+    await connector.connect();
+    const games = connector.games();
+
+    const query = {
+        code: game_code,
+        admin: user_sub,
+    };
+
+    const updateQuery = {
+        $set: {
+            blind_rules: blinds,
+        }
+    };
+
+    const gameForCode = await games.find(query).toArray();
+    if (!gameForCode.length) return {db_status: 'error', error: 'Game not found'};
+    await games.updateOne(query, updateQuery);
+    return {db_status: 'success'};
+}
+
+async function setUsername(game_code, user_sub, name) {
+    if (!name) return;
+
+    const connector = new Connector();
+    await connector.connect();
+    const games = connector.games();
+
+    const query = {
+        code: game_code,
+        players: { $elemMatch: { user_id: user_sub } }
+    };
+
+    const updateQuery = {
+        $set: {
+            'players.$.name': name,
+        }
+    };
+
+    const gameForCode = await games.find(query).toArray();
+    if (!gameForCode.length) return {db_status: 'error', error: 'Game not found'};
+    await games.updateOne(query, updateQuery);
+    return {db_status: 'success'};
 }

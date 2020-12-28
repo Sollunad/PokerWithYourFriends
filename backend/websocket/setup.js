@@ -41,19 +41,25 @@ function start(server) {
             await messageHandler.handle(message, game_code, user_id);
             await broadcastGameState(game_code);
         });
+
+        socket.on('disconnect', () => {
+            clients = clients.filter(c => c.socket.id !== socket.id);
+        })
     });
 }
 
 async function broadcastGameState(game_code) {
     const clientsForGame = clients.filter(c => c.game_code === game_code);
     // TODO
-    const table = undefined;
     const beGame = await getGame(game_code);
+    if (!beGame) return;
+    const table = undefined;
 
     clientsForGame.forEach((client) => {
         const user_id = client.user_id;
         const socket = client.socket;
         const feGameState = getFEGameState(beGame, table, user_id);
+        console.log(feGameState);
         socket.send({game: feGameState});
     });
 }

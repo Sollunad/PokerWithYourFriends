@@ -2,7 +2,7 @@
   <div class="game">
     <!-- ++++++++++++++++++++++++++++++ Settings ++++++++++++++++++++++++++++++-->
     <v-container
-      v-show="!game_state.started"
+      v-show="game_state && !game_state.started"
       grid-list-md
       fluid
       class="settings"
@@ -67,6 +67,10 @@
                         ></v-text-field>
                       </v-flex>
                     </v-layout>
+                    <v-btn
+                            v-if="isAdmin"
+                            @click="saveBlinds"
+                    >Save Blind Settings</v-btn>
                   </v-container>
                 </v-card-text>
               </v-card>
@@ -77,17 +81,17 @@
                 <v-card-title>User settings </v-card-title>
                 <v-card-text>
                   <v-text-field
-                    v-model="current_user.name"
+                    v-model="form_username"
                     label="Username:"
                   ></v-text-field>
+                  <v-btn @click="saveUsername">Save Username</v-btn>
                 </v-card-text>
               </v-card>
               <v-container>
                 <v-btn
-                  v-if="current_user.user_id == game_state.admin"
+                  v-if="isAdmin"
                   @click="startGame"
-                  >Start game</v-btn
-                >
+                  >Start game</v-btn>
               </v-container>
             </v-flex>
           </v-layout>
@@ -107,13 +111,13 @@
           </v-card>
         </div>
       </div>
-      <div v-if="current_user.user_id != game_state.admin">
+      <div v-if="!isAdmin">
         Wait for the admin to start the game
       </div>
     </v-container>
 
     <v-container
-      v-show="game_state.started"
+      v-show="game_state && game_state.started"
       grid-list-md
       fluid
       class="ingame_settings"
@@ -263,6 +267,7 @@ export default {
       },
       admin: this.$auth.user.sub,
       selected_player_by_admin: null,
+      form_username: '',
       new_sb: 10,
       new_bb: 20,
       raise_amount: 0,
@@ -276,12 +281,9 @@ export default {
         game_code: this.game_code,
       }
     });
-    this.socket.on("connect", () => {
-        console.log("Auth erfolgreich!");
-    });
     this.socket.on('message', (data) => {
-      console.log(data.game);
-      //this.game_state = data.game;
+      this.game_state = data.game;
+      if (this.form_username === '') this.form_username = this.current_user.name;
     })
   },
   computed: {
@@ -290,14 +292,15 @@ export default {
     },
     current_user() {
       return this.game_state.players.find(p => p.is_self);
+    },
+    isAdmin() {
+      return this.current_user.is_admin;
     }
   },
   methods: {
     startGame() {
-      this.game_state.started = true;
       this.socket.emit('message', {action: 'startGame'});
     },
-    saveSettings() {},
     selectPlayer(event) {
       if (this.current_user.id === this.admin) {
         const selected_player_name = `${event.target.textContent
@@ -318,15 +321,20 @@ export default {
         small: this.new_sb,
         big: this.new_bb
       });
+      this.game_state.blind_rules.steps.sort((a, b) => a.small - b.small);
       this.new_sb *= 2;
       this.new_bb *= 2;
-      this.socket.emit('message', {action: 'adjustBlinds', blinds: this.game_state.blind_rules });
     },
     removeBlindStep(step) {
       this.game_state.blind_rules.steps = this.game_state.blind_rules.steps.filter(
         item => item !== step
       );
+    },
+    saveBlinds() {
       this.socket.emit('message', {action: 'adjustBlinds', blinds: this.game_state.blind_rules });
+    },
+    saveUsername() {
+      this.socket.emit('message', {action: 'setUsername', name: this.form_username });
     },
     decrement() {
       this.raise_amount--;
@@ -337,6 +345,9 @@ export default {
     btnFold() {
       this.socket.emit('message', {action: 'fold'});
     }
+  },
+  beforeDestroy() {
+      this.socket.disconnect();
   }
 };
 </script>
