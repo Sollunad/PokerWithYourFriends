@@ -6,7 +6,7 @@ class Card {
   suit: string | undefined;
 }
 
-class Player {
+class FEPlayer {
   name: string;
   is_self: boolean;
   is_turn: boolean;
@@ -24,9 +24,8 @@ class Player {
 }
 
 export class GameState {
-  players: Player[];
+  players: FEPlayer[];
   board: Card[];
-  admin: string;
   started: boolean;
   blind_rules: BlindRules;
   pot: number;
