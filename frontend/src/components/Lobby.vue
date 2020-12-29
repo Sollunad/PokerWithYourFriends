@@ -83,7 +83,12 @@
               </v-card-text>
             </v-card>
             <v-container>
-              <v-btn v-if="isAdmin" @click="startGame">Start game</v-btn>
+              <v-btn
+                :disabled="$store.state.game_state.players.length < 2"
+                v-if="isAdmin"
+                @click="startGame"
+                >Start game</v-btn
+              >
             </v-container>
           </v-flex>
         </v-layout>
