@@ -6,7 +6,7 @@
     "build": "cd frontend && npm run build",
     "serve": "cd frontend && npm run serve",
     "start-backend": "cd backend && nodejs app.js",
-    "start-backend-dev": "cd backend && nodejs app.js http",
+    "start-backend-dev": "cd backend && nodejs app.js http"
   },
   "dependencies": {
 
