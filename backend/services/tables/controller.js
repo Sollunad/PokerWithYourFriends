@@ -47,6 +47,7 @@ async function processAndClearTable(game_code, user_sub) {
         const table_player = table.players.find(p => p.playerName === player.user_id);
         let chips = 0;
         if (table_player) chips = table_player.chips;
+        player.chips = chips;
         await updateChipsForPlayer(game_code, user_sub, player.user_id, chips);
     }
 
