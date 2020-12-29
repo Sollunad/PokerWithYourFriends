@@ -32,8 +32,10 @@ async function createNewGame(creator_sub) {
 
     try {
         await games.insertOne(game);
+        await connector.close();
         return {db_status: 'success', game_code: code};
     } catch (err) {
+        await connector.close();
         return {db_status: 'error', error: 'Es ist ein Fehler aufgetreten'};
     }
 }
@@ -61,6 +63,7 @@ async function joinGame(user_sub, game_code) {
         $push: { players: newP },
     };
     await games.updateOne(query, updateQuery);
+    await connector.close();
 }
 
 async function getGame(game_code) {
@@ -73,7 +76,11 @@ async function getGame(game_code) {
     };
 
     const gameForCode = await games.find(query).toArray();
-    if (!gameForCode.length) return;
+    if (!gameForCode.length) {
+        await connector.close();
+        return;
+    }
+    await connector.close();
     return gameForCode[0];
 }
 
@@ -88,7 +95,11 @@ async function getAdminGame(game_code, user_sub) {
     };
 
     const gameForCode = await games.find(query).toArray();
-    if (!gameForCode.length) return;
+    if (!gameForCode.length) {
+        await connector.close();
+        return;
+    }
+    await connector.close();
     return gameForCode[0];
 }
 
@@ -109,8 +120,13 @@ async function startGame(game_code, user_sub) {
     };
 
     const gameForCode = await games.find(query).toArray();
-    if (!gameForCode.length) return {db_status: 'error', error: 'Game not found'};
+
+    if (!gameForCode.length) {
+        await connector.close();
+        return {db_status: 'error', error: 'Game not found'};
+    }
     await games.updateOne(query, updateQuery);
+    await connector.close();
     return {db_status: 'success'};
 }
 
@@ -133,8 +149,12 @@ async function adjustBlinds(game_code, user_sub, blinds) {
     };
 
     const gameForCode = await games.find(query).toArray();
-    if (!gameForCode.length) return {db_status: 'error', error: 'Game not found'};
+    if (!gameForCode.length) {
+        await connector.close();
+        return {db_status: 'error', error: 'Game not found'};
+    }
     await games.updateOne(query, updateQuery);
+    await connector.close();
     return {db_status: 'success'};
 }
 
@@ -157,8 +177,12 @@ async function setRoundCounter(game_code, admin_sub, rounds_played) {
     };
 
     const gameForCode = await games.find(query).toArray();
-    if (!gameForCode.length) return {db_status: 'error', error: 'Game not found'};
+    if (!gameForCode.length) {
+        await connector.close();
+        return {db_status: 'error', error: 'Game not found'};
+    }
     await games.updateOne(query, updateQuery);
+    await connector.close();
     return {db_status: 'success'};
 }
 
@@ -181,8 +205,12 @@ async function setNextDealer(game_code, admin_sub, next_dealer) {
     };
 
     const gameForCode = await games.find(query).toArray();
-    if (!gameForCode.length) return {db_status: 'error', error: 'Game not found'};
+    if (!gameForCode.length) {
+        await connector.close();
+        return {db_status: 'error', error: 'Game not found'};
+    }
     await games.updateOne(query, updateQuery);
+    await connector.close();
     return {db_status: 'success'};
 }
 
@@ -206,8 +234,12 @@ async function updateChipsForPlayer(game_code, admin_sub, player_sub, chips) {
     };
 
     const gameForCode = await games.find(query).toArray();
-    if (!gameForCode.length) return {db_status: 'error', error: 'Game not found'};
+    if (!gameForCode.length) {
+        await connector.close();
+        return {db_status: 'error', error: 'Game not found'};
+    }
     await games.updateOne(query, updateQuery);
+    await connector.close();
     return {db_status: 'success'};
 }
 
@@ -231,8 +263,12 @@ async function updateChipsForUsername(game_code, admin_sub, user_name, chips) {
     };
 
     const gameForCode = await games.find(query).toArray();
-    if (!gameForCode.length) return {db_status: 'error', error: 'Game not found'};
+    if (!gameForCode.length) {
+        await connector.close();
+        return {db_status: 'error', error: 'Game not found'};
+    }
     await games.updateOne(query, updateQuery);
+    await connector.close();
     return {db_status: 'success'};
 }
 
@@ -255,8 +291,12 @@ async function setUsername(game_code, user_sub, name) {
     };
 
     const gameForCode = await games.find(query).toArray();
-    if (!gameForCode.length) return {db_status: 'error', error: 'Game not found'};
+    if (!gameForCode.length) {
+        await connector.close();
+        return {db_status: 'error', error: 'Game not found'};
+    }
     await games.updateOne(query, updateQuery);
+    await connector.close();
     return {db_status: 'success'};
 }
 
@@ -270,4 +310,5 @@ async function deleteGame(game_code, admin_sub) {
         admin: admin_sub,
     };
     await games.deleteOne(query);
+    await connector.close();
 }
