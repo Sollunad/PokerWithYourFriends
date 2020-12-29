@@ -30,7 +30,7 @@ function getFEPlayer(bePlayer, beGame, table, user_id, clientsForGame) {
         is_dealer: table ? bePlayer.user_id === players_in_game[dealer_num].user_id : false,
         is_bb: table ? bePlayer.user_id === players_in_game[bb_num].user_id : false,
         is_sb: table ? bePlayer.user_id === players_in_game[sb_num].user_id : false,
-        is_allIn: table ? table_player.allIn : false,
+        is_allIn: table_player ? table_player.allIn : false,
         is_round_winner: table ? table.gameWinners.some(w => w.playerName === bePlayer.user_id) : false,
         is_out: bePlayer.chips === 0,
         has_fold: table_player ? table_player.folded : false,
