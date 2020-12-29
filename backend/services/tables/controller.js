@@ -31,6 +31,7 @@ async function createTable(game_code, user_sub) {
         table.AddPlayer(player.user_id, player.chips);
     }
     table.StartGame();
+    console.log(table);
     tables.push(table);
 }
 
