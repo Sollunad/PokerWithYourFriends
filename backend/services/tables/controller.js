@@ -25,6 +25,7 @@ async function createTable(game_code, user_sub) {
     for (let i = 0; i < livingPlayers.length; i++) {
         if (livingPlayers[i].user_id === next_dealer_user_id) next_dealer_id = i;
     }
+    console.log(next_dealer_id);
     const table = new poker.Table(game_code, blindStep.small, blindStep.big, next_dealer_id);
     for (const player of livingPlayers) {
         table.AddPlayer(player.user_id, player.chips);
