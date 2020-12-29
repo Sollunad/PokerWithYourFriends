@@ -34,4 +34,5 @@ export class GameState {
   pot: number;
   call_value: number;
   min_raise: number;
+  event_list: string[];
 }

@@ -10,6 +10,7 @@ function getFEGameState(beGame, table, user_id, clientsForGame) {
         round_running: !!table,
         round_finished: table ? !!table.gameWinners.length : false,
         min_raise: table ? table.minRaise : 0,
+        event_list: table ? table.event_list.map(event => mapEvent(event, beGame)) : [],
     }
 }
 
@@ -66,4 +67,22 @@ function getBoardCards(table_cards) {
             suit: card.charAt(1),
         };
     });
+}
+
+function mapEvent(event, beGame) {
+    const username = event.user_id ? beGame.players.find(p => p.user_id === event.user_id).name : '';
+    switch (event.event) {
+        case 'smallBlind': return `${username} pays ${event.amount}$ as small blind.`;
+        case 'bigBlind': return `${username} pays ${event.amount}$ as big blind.`;
+        case 'fold': return `${username} folds.`;
+        case 'check': return `${username} checks.`;
+        case 'call': return `${username} calls.`;
+        case 'raise': return `${username} raises with ${event.amount}$.`;
+        case 'allIn': return `${username} goes All In!`;
+        case 'flop': return `--- Flop ---`;
+        case 'turn': return `--- Turn ---`;
+        case 'river': return `--- River ---`;
+        case 'showdown': return `--- Showdown ---`;
+        case 'winner': return `${username} wins ${event.amount}$${event.hand ? ` with their ${event.hand}` : ''}.`;
+    }
 }
