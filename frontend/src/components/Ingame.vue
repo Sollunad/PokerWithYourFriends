@@ -64,14 +64,14 @@
               >
             </v-card>
             <v-img
-              v-if="$store.state.game_state.round_running && !player.has_fold"
+              v-if="$store.state.game_state.round_running && !player.has_fold && player.cards[0]"
               :src="getCard(player.cards[0])"
               max-height="150"
               max-width="60"
               class="player-card1"
             ></v-img>
             <v-img
-              v-if="$store.state.game_state.round_running && !player.has_fold"
+              v-if="$store.state.game_state.round_running && !player.has_fold && player.cards[1]"
               :src="getCard(player.cards[1])"
               max-height="150"
               max-width="60"
