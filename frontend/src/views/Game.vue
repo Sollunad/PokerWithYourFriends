@@ -7,8 +7,8 @@
 
 <script type="text/javascript">
 import { io } from "socket.io-client";
-import Lobby from "../components/game/lobby/Lobby.vue";
-import Ingame from "../components/game/ingame/Ingame.vue";
+import Lobby from "../components/Lobby.vue";
+import Ingame from "../components/Ingame.vue";
 
 export default {
   name: "Game",
@@ -28,25 +28,25 @@ export default {
     },
     game_code() {
       return this.$route.query.code;
-    },
+    }
   },
   async mounted() {
     const socket = io.connect("http://localhost:8081", {
       extraHeaders: {
         Authorization: `Bearer ${await this.$auth.getTokenSilently()}`,
-        game_code: this.game_code,
+        game_code: this.game_code
       }
     });
-    socket.on('message', (data) => {
-      this.$store.commit('setGameState', { game_state: data.game });
+    socket.on("message", data => {
+      this.$store.commit("setGameState", { game_state: data.game });
       console.log(this.$store.state.game_state);
-      this.$store.dispatch('updateFormUsernameFromGameState');
+      this.$store.dispatch("updateFormUsernameFromGameState");
     });
-    this.$store.commit('setSocket', { socket: socket });
+    this.$store.commit("setSocket", { socket: socket });
   },
   beforeDestroy() {
     this.$store.state.socket.disconnect();
-    this.$store.commit('setSocket', { socket: undefined });
+    this.$store.commit("setSocket", { socket: undefined });
   }
 };
 </script>
