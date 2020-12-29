@@ -1,0 +1,14 @@
+{
+  "name": "pwyf",
+  "version": "0.1.0",
+  "scripts": {
+    "install": "cd frontend && npm install && cd ../backend && npm install",
+    "build": "cd frontend && npm run build",
+    "serve": "cd frontend && npm run serve",
+    "start-backend": "cd backend && nodejs app.js",
+    "start-backend-dev": "cd backend && nodejs app.js http"
+  },
+  "dependencies": {
+
+  }
+}

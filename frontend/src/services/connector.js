@@ -1,11 +1,13 @@
 const axios = require('axios');
+const config = require('../../config');
 
 export default fetch;
 
 async function fetch(vue, endpoint, method, params) {
     const token = await vue.$auth.getTokenSilently();
     const headers = { Authorization: `Bearer ${token}`};
-    const url = 'http://localhost:8081/' + endpoint;
+    const environment = process.env.NODE_ENV;
+    let url = config[environment] + endpoint;
     if (method === 'get') {
         return (await axios({method, url, headers, params})).data;
     } else {

@@ -9,6 +9,7 @@ function Table(game_code, smallBlind, bigBlind, dealer) {
   this.players = [];
   this.dealer = dealer;
   this.gameWinners = [];
+  this.event_list = [];
 }
 
 function Player(playerName, chips, table) {
@@ -138,6 +139,15 @@ function checkForWinner(table) {
     }
   }
 
+  for (const gameWinner of table.gameWinners) {
+    table.event_list.push({
+      event: 'winner',
+      user_id: gameWinner.playerName,
+      amount: gameWinner.amount,
+      hand: countPlayersIngame > 1 ? gameWinner.hand.message : undefined,
+    });
+  }
+
   let roundEnd = true;
   for (let i = 0; i < table.game.roundBets.length; i++) {
     if (table.game.roundBets[i] !== 0) {
@@ -182,6 +192,7 @@ function progress(table) {
       }
       moveBetsToPot(table);
       table.game.roundName = "Showdown";
+      table.event_list.push({event: 'showdown'});
       table.currentPlayer = -1;
       checkForWinner(table);
     } else if (checkForEndOfRound(table) === true) {
@@ -195,18 +206,22 @@ function progress(table) {
 
       if (table.game.roundName === "River") {
         table.game.roundName = "Showdown";
+        table.event_list.push({event: 'showdown'});
         table.currentPlayer = -1;
         checkForWinner(table);
       } else if (table.game.roundName === "Turn") {
         table.game.roundName = "River";
+        table.event_list.push({event: 'river'});
         table.game.deck.pop(); //Burn a card
         table.game.board.push(table.game.deck.pop()); //Turn a card
       } else if (table.game.roundName === "Flop") {
         table.game.roundName = "Turn";
+        table.event_list.push({event: 'turn'});
         table.game.deck.pop(); //Burn a card
         table.game.board.push(table.game.deck.pop()); //Turn a card
       } else if (table.game.roundName === "Deal") {
         table.game.roundName = "Flop";
+        table.event_list.push({event: 'flop'});
         table.game.deck.pop(); //Burn a card
         for (let i = 0; i < 3; i += 1) {
           //Turn three cards
@@ -259,6 +274,11 @@ Table.prototype.StartGame = function () {
     this.players[smallBlind].chips -= this.smallBlind;
     this.game.bets[smallBlind] = this.smallBlind;
   }
+  this.event_list.push({
+    user_id: this.players[smallBlind].playerName,
+    event: 'smallBlind',
+    amount: this.game.bets[smallBlind],
+  });
 
   if (this.players[bigBlind].chips <= this.bigBlind) {
     this.game.bets[bigBlind] = this.players[bigBlind].chips;
@@ -268,6 +288,12 @@ Table.prototype.StartGame = function () {
     this.players[bigBlind].chips -= this.bigBlind;
     this.game.bets[bigBlind] = this.bigBlind;
   }
+
+  this.event_list.push({
+    user_id: this.players[bigBlind].playerName,
+    event: 'bigBlind',
+    amount: this.game.bets[bigBlind],
+  });
 
   // get currentPlayer
   this.setCurrentPlayerForNewRound();
@@ -321,6 +347,10 @@ Player.prototype.Check = function () {
   const ownBet = this.table.game.bets[this.playerId()];
   if (maxBet === ownBet) {
     this.talked = true;
+    this.table.event_list.push({
+      event: 'check',
+      user_id: this.playerName,
+    });
     progress(this.table);
   } else {
     console.log("Check not allowed, replay please");
@@ -333,9 +363,12 @@ Player.prototype.Fold = function () {
   this.table.game.roundBets[this.playerId()] += bet;
   this.table.game.bets[this.playerId()] = 0;
   this.table.game.pot += bet;
-
   this.talked = true;
   this.folded = true;
+  this.table.event_list.push({
+    event: 'fold',
+    user_id: this.playerName,
+  });
   progress(this.table);
 };
 
@@ -347,6 +380,11 @@ Player.prototype.Bet = function (bet) {
     this.table.game.bets[this.playerId()] += diffBet;
     this.chips -= diffBet;
     this.talked = true;
+    this.table.event_list.push({
+      event: 'raise',
+      user_id: this.playerName,
+      amount: bet,
+    });
     progress(this.table);
   } else {
     if (this.chips > this.getCallValue()) {
@@ -363,6 +401,10 @@ Player.prototype.Call = function () {
     this.table.game.bets[this.playerId()] += diffBet;
     this.chips -= diffBet;
     this.talked = true;
+    this.table.event_list.push({
+      event: 'call',
+      user_id: this.playerName,
+    });
     progress(this.table);
   } else {
     this.AllIn();
@@ -380,6 +422,10 @@ Player.prototype.AllIn = function () {
   this.chips = 0;
   this.allIn = true;
   this.talked = true;
+  this.table.event_list.push({
+    event: 'allIn',
+    user_id: this.playerName,
+  });
   progress(this.table);
 };
 
