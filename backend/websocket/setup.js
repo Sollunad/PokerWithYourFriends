@@ -58,6 +58,7 @@ async function broadcastGameState(game_code) {
         if (!beGame) socket.send({error: 'Game does not exist'});
         else {
             const feGameState = getFEGameState(beGame, table, user_id, clientsForGame);
+            console.log(feGameState);
             socket.send({game: feGameState});
         }
     });
