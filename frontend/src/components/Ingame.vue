@@ -5,9 +5,6 @@
       <v-btn v-if="isAdmin" class="leave-btn" @click="deleteGame">
         Delete the game
       </v-btn>
-      <v-btn v-if="!isAdmin" class="leave-btn" @click="leaveGame">
-        Leave the game
-      </v-btn>
       <v-row>
         <div class="table my-0 mx-auto ">
           <div class="table-left"></div>
@@ -38,7 +35,7 @@
               class="admin-crown"
               max-height="20"
               max-width="30"
-              src="http://localhost:8080/admin_crown.svg"
+              :src="adminLogo"
             ></v-img>
             <v-card
               class="player-card"
@@ -178,6 +175,12 @@ export default {
     raiseButtonText() {
       return `Raise ${this.raise_amount} => Bet ${this.raise_amount +
         this.$store.getters.current_user.call_value}`;
+    },
+    baseUrl() {
+      return window.location.origin;
+    },
+    adminLogo() {
+      return `${this.baseUrl}/admin_crown.svg`;
     }
   },
   methods: {
@@ -222,22 +225,18 @@ export default {
         value: this.raise_amount
       });
     },
-    leaveGame() {
-      /* TODO: remove User from the game  */
-      this.$router.push("/");
-    },
     getCard(card) {
       if (card.visible) {
-        return `http://localhost:8080/cards/${card.value}${card.suit}.svg`;
+        return `${this.baseUrl}/cards/${card.value}${card.suit}.svg`;
       } else {
-        return `http://localhost:8080/cards/card_back.svg`;
+        return `${this.baseUrl}/cards/card_back.svg`;
       }
     },
     getCardBoard(card) {
       if (card) {
-        return `http://localhost:8080/cards/${card.value}${card.suit}.svg`;
+        return `${this.baseUrl}/cards/${card.value}${card.suit}.svg`;
       } else {
-        return `http://localhost:8080/cards/card_back.svg`;
+        return `${this.baseUrl}/cards/card_back.svg`;
       }
     },
     playerClass({ player, idx }) {
