@@ -7,6 +7,8 @@ exports.getGame = getGame;
 exports.getAdminGame = getAdminGame;
 exports.startGame = startGame;
 exports.adjustBlinds = adjustBlinds;
+exports.setRoundCounter = setRoundCounter;
+exports.setNextDealer = setNextDealer;
 exports.updateChipsForPlayer = updateChipsForPlayer;
 exports.updateChipsForUsername = updateChipsForUsername;
 exports.setUsername = setUsername;
@@ -124,6 +126,54 @@ async function adjustBlinds(game_code, user_sub, blinds) {
     const updateQuery = {
         $set: {
             blind_rules: blinds,
+        }
+    };
+
+    const gameForCode = await games.find(query).toArray();
+    if (!gameForCode.length) return {db_status: 'error', error: 'Game not found'};
+    await games.updateOne(query, updateQuery);
+    return {db_status: 'success'};
+}
+
+async function setRoundCounter(game_code, admin_sub, rounds_played) {
+    if (!rounds_played) return;
+
+    const connector = new Connector();
+    await connector.connect();
+    const games = connector.games();
+
+    const query = {
+        code: game_code,
+        admin: admin_sub,
+    };
+
+    const updateQuery = {
+        $set: {
+            rounds_played,
+        }
+    };
+
+    const gameForCode = await games.find(query).toArray();
+    if (!gameForCode.length) return {db_status: 'error', error: 'Game not found'};
+    await games.updateOne(query, updateQuery);
+    return {db_status: 'success'};
+}
+
+async function setNextDealer(game_code, admin_sub, next_dealer) {
+    if (!next_dealer && next_dealer !== 0) return;
+
+    const connector = new Connector();
+    await connector.connect();
+    const games = connector.games();
+
+    const query = {
+        code: game_code,
+        admin: admin_sub,
+    };
+
+    const updateQuery = {
+        $set: {
+            next_dealer,
         }
     };
 

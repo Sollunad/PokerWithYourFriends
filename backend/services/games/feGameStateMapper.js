@@ -43,7 +43,7 @@ function getFEPlayer(bePlayer, beGame, table, user_id, clientsForGame) {
 
 function getPlayerCards(table_player, user_id) {
     if (!table_player) return [];
-    if (table_player.playerName !== user_id) {
+    if (table_player.playerName !== user_id && !table_player.showCards) {
         return [
             { visible: false }, { visible: false}
         ];

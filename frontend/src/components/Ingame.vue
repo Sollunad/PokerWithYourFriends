@@ -43,29 +43,29 @@
             <v-card
               class="player-card"
               elevation="10"
-              :color="player.is_turn ? 'green' : ''"
+              :color="player.is_turn ? 'green' : player.is_round_winner ? 'yellow' : ''"
             >
               <v-card-title class="player-title justify-space-between">
                 <span class="you" v-if="player.is_self">
                   <p v-if="player.is_turn" class="greencolor">Your turn</p>
                   <p v-else>You</p>
                 </span>
-                {{ player.name }}<v-chip v-if="player.is_dealer">Dealer</v-chip
-                ><v-chip v-if="player.is_sb">SB</v-chip>
+                <span class="player-name">{{ player.name }}</span>
+                <v-chip v-if="player.is_dealer">D</v-chip>
+                <v-chip v-if="player.is_sb">SB</v-chip>
                 <v-chip v-if="player.is_bb">BB</v-chip>
               </v-card-title>
-
-              <v-card-text>Bank: {{ player.chips_bank }} $</v-card-text>
+              <v-card-text>Bank: {{ player.chips_bank }}$ | Bet: {{ player.chips_bet }}$</v-card-text>
             </v-card>
             <v-img
-              v-if="$store.state.game_state.round_running"
+              v-if="$store.state.game_state.round_running && !player.has_fold"
               :src="getCard(player.cards[0])"
               max-height="150"
               max-width="60"
               class="player-card1"
             ></v-img>
             <v-img
-              v-if="$store.state.game_state.round_running"
+              v-if="$store.state.game_state.round_running && !player.has_fold"
               :src="getCard(player.cards[1])"
               max-height="150"
               max-width="60"
@@ -234,7 +234,6 @@ export default {
       }
     },
     getCardBoard(card) {
-      console.log(card);
       if (card) {
         return `http://localhost:8080/cards/${card.value}${card.suit}.svg`;
       } else {
@@ -318,6 +317,10 @@ export default {
   position: absolute;
   top: -35px;
   color: white;
+}
+
+.player-name {
+  font-size: 14px;
 }
 
 .player-1,

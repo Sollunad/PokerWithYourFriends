@@ -1,4 +1,4 @@
-const { getAdminGame, updateChipsForPlayer } = require('../games/controller');
+const { getAdminGame, updateChipsForPlayer, setRoundCounter, setNextDealer } = require('../games/controller');
 const poker = require('../../node-poker/lib/node-poker');
 
 exports.createTable = createTable;
@@ -11,13 +11,15 @@ let tables = [];
 async function createTable(game_code, user_sub) {
     const beGame = await getAdminGame(game_code, user_sub);
     if (!beGame) return;
-
     if (getTable(game_code)) return;
 
     const livingPlayers = beGame.players.filter(p => p.chips > 0);
-    const blindStepNum = Math.floor(beGame.rounds_played / beGame.blind_rules.raise_every_n_rounds);
+    if (livingPlayers.length === 1) return;
+
+    let blindStepNum = Math.floor(beGame.rounds_played / beGame.blind_rules.raise_every_n_rounds);
+    if (blindStepNum >= beGame.blind_rules.steps.length) blindStepNum = beGame.blind_rules.steps.length - 1;
     const blindStep = beGame.blind_rules.steps[blindStepNum];
-    const table = new poker.Table(game_code, blindStep.small, blindStep.big, 0);
+    const table = new poker.Table(game_code, blindStep.small, blindStep.big, beGame.next_dealer);
     for (const player of livingPlayers) {
         table.AddPlayer(player.user_id, player.chips);
     }
@@ -42,8 +44,15 @@ async function processAndClearTable(game_code, user_sub) {
         await updateChipsForPlayer(game_code, user_sub, player.user_id, chips);
     }
 
-    // TODO Round counter 1 hoch
-    // TODO Dealer 1 hoch mod players, ausgeschiedene überspringen
+    const oldRounds = beGame.rounds_played;
+    await setRoundCounter(game_code, user_sub, oldRounds + 1);
+
+    const oldDealer = beGame.next_dealer;
+    let newDealer = (oldDealer + 1) % beGame.players.length;
+    while (beGame.players[newDealer].chips === 0) {
+        newDealer = (newDealer + 1) % beGame.players.length;
+    }
+    await setNextDealer(game_code, user_sub, newDealer);
 
     tables = tables.filter(t => t.game_code !== game_code);
 }

@@ -17,6 +17,7 @@ function Player(playerName, chips, table) {
   this.folded = false;
   this.allIn = false;
   this.talked = false;
+  this.showCards = false;
   this.table = table;
   this.cards = [];
 }
@@ -78,9 +79,10 @@ function checkForWinner(table) {
   //Identify winner(s)
   let winners = [];
   let maxRank = 0.0;
+  let countPlayersIngame = 0;
   for (let playerId = 0; playerId < table.players.length; playerId++) {
-    if (table.players[playerId].folded || table.game.roundBets[playerId] === 0)
-      continue;
+    if (table.players[playerId].folded || table.game.roundBets[playerId] === 0) continue;
+    countPlayersIngame++;
     const cards = table.players[playerId].cards.concat(table.game.board);
     const hand = new Hand(cards);
     table.players[playerId].hand = _rankHands.rankHand(hand);
@@ -119,6 +121,7 @@ function checkForWinner(table) {
     const winnerPrize = prize / winners.length;
     const winningPlayer = table.players[winners[i]];
     winningPlayer.chips += winnerPrize;
+    if (countPlayersIngame > 1) winningPlayer.showCards = true;
     const pushedGameWinner = table.gameWinners.find(
       (w) => w.playerName === winningPlayer.playerName
     );
@@ -132,9 +135,6 @@ function checkForWinner(table) {
         hand: winningPlayer.hand,
         chips: winningPlayer.chips,
       });
-    }
-    if (table.game.roundBets[winners[i]] === 0) {
-      winningPlayer.folded = true;
     }
   }
 
@@ -330,7 +330,7 @@ Player.prototype.Check = function () {
 Player.prototype.Fold = function () {
   //Move any current bet into the pot
   const bet = parseInt(this.table.game.bets[this.playerId()], 10);
-  this.table.game.roundBets[this.playerId()] = bet;
+  this.table.game.roundBets[this.playerId()] += bet;
   this.table.game.bets[this.playerId()] = 0;
   this.table.game.pot += bet;
 
