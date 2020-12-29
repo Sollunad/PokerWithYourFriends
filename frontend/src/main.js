@@ -30,6 +30,7 @@ const store = new Vuex.Store({
   },
   getters: {
     current_user(state) {
+      if (!state.game_state) return undefined;
       return state.game_state.players.find(p => p.is_self) || {};
     }
   },
@@ -55,6 +56,7 @@ const store = new Vuex.Store({
   },
   actions: {
     updateFormUsernameFromGameState(store) {
+      if (!store.getters.current_user) return;
       const gameStateUsername = store.getters.current_user.name;
       if (store.state.form_username === '') store.commit('setFormUsername', { name: gameStateUsername });
     }

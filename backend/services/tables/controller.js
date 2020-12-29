@@ -34,7 +34,6 @@ async function processAndClearTable(game_code, user_sub) {
     if (!beGame) return;
     const table = getTable(game_code);
     if (table.game.roundName !== 'Showdown') return;
-
     const livingPlayers = beGame.players.filter(p => p.chips > 0);
     for (const player of livingPlayers) {
         const table_player = table.players.find(p => p.playerName === player.user_id);

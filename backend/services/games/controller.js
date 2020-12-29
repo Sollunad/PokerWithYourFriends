@@ -134,7 +134,7 @@ async function adjustBlinds(game_code, user_sub, blinds) {
 }
 
 async function updateChipsForPlayer(game_code, admin_sub, player_sub, chips) {
-    if (!chips) return;
+    if (!chips && chips !== 0) return;
 
     const connector = new Connector();
     await connector.connect();

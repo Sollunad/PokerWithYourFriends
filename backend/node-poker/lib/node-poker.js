@@ -159,10 +159,10 @@ function moveBetsToPot(table) {
 
 function progress(table) {
   if (table.game) {
-    if (
-      table.players.filter((p) => !p.folded).length === 1 ||
-      table.players.filter((p) => !p.folded && !p.allIn).length === 0
-    ) {
+    const actablePlayers = table.players.filter((p) => !p.folded && !p.allIn);
+    const maxBet = table.getMaxBet();
+    if (actablePlayers.length === 0
+        || (actablePlayers.length === 1 && table.game.bets[actablePlayers[0].playerId()] === maxBet)) {
       let cardsToTurn;
       switch (table.game.roundName) {
         case "Deal":
@@ -186,6 +186,7 @@ function progress(table) {
       checkForWinner(table);
     } else if (checkForEndOfRound(table) === true) {
       table.setCurrentPlayerForNewRound();
+      table.minRaise = table.bigBlind;
       moveBetsToPot(table);
 
       for (const player of table.players) {
@@ -329,6 +330,7 @@ Player.prototype.Check = function () {
 Player.prototype.Fold = function () {
   //Move any current bet into the pot
   const bet = parseInt(this.table.game.bets[this.playerId()], 10);
+  this.table.game.roundBets[this.playerId()] = bet;
   this.table.game.bets[this.playerId()] = 0;
   this.table.game.pot += bet;
 
