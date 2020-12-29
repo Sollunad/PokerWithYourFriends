@@ -2,11 +2,20 @@
   <div class="ingame">
     <!-- ++++++++++++++++++ Table ++++++++++++++++++-->
     <v-container fill-height fluid grid-list-md class="ingame_table">
-      <v-btn class="leave-btn" @click="leaveGame">Leave the game</v-btn>
+      <v-btn v-if="isAdmin" class="leave-btn" @click="deleteGame">
+        Delete the game
+      </v-btn>
+      <v-btn v-if="!isAdmin" class="leave-btn" @click="leaveGame">
+        Leave the game
+      </v-btn>
       <v-row>
         <div class="table my-0 mx-auto ">
           <div class="table-left"></div>
           <div class="table-right"></div>
+          <div class="pot">
+            <h2>Pot:</h2>
+            <h2>{{ $store.state.game_state.pot }}$</h2>
+          </div>
           <v-container class="board">
             <v-layout row>
               <v-flex v-for="(idx, i) in [0, 1, 2, 3, 4]" :key="i">
@@ -24,6 +33,13 @@
             :key="idx"
             :class="playerClass({ player: player, idx: idx + 1 })"
           >
+            <v-img
+              v-if="player.is_admin"
+              class="admin-crown"
+              max-height="20"
+              max-width="30"
+              src="http://localhost:8080/admin_crown.svg"
+            ></v-img>
             <v-card
               class="player-card"
               elevation="10"
@@ -165,6 +181,10 @@ export default {
     }
   },
   methods: {
+    deleteGame() {
+      this.$store.state.socket.emit("message", { action: "deleteGame" });
+      this.$router.push("/");
+    },
     decrement_raise() {
       this.raise_amount -= 5;
     },
@@ -203,7 +223,7 @@ export default {
       });
     },
     leaveGame() {
-      /* TODO: remove Game from the database */
+      /* TODO: remove User from the game  */
       this.$router.push("/");
     },
     getCard(card) {
@@ -287,6 +307,17 @@ export default {
   position: absolute;
   top: 10px;
   left: 10px;
+}
+
+.admin-crown {
+  position: absolute;
+  top: -28px;
+  right: 0;
+}
+.you {
+  position: absolute;
+  top: -35px;
+  color: white;
 }
 
 .player-1,
@@ -387,11 +418,14 @@ export default {
   position: relative;
 }
 
-.you {
+.pot {
   position: absolute;
-  top: -35px;
-  color: white;
+  top: 50%;
+  left: 75px;
+  color: black;
+  transform: translate(-50%, -50%);
 }
+
 .greencolor {
   color: green;
 }
