@@ -43,18 +43,21 @@ async function joinGame(user_sub, game_code) {
     await connector.connect();
     const games = connector.games();
 
-    // Prüfe, ob es ein Game gibt für den Game-Code, das noch nicht gestartet ist und dem der Nutzer nicht beigetreten ist
+    // Prüfe, ob es ein Game gibt, das joinable ist
     const query = {
         code: game_code,
         started: false,
-        'players.user_id': { $ne: user_sub }
+        'players.user_id': { $ne: user_sub },
+        player_count: { $lte: 8 },
     };
     const gameForCode = await games.find(query).toArray();
     if (!gameForCode.length) return;
+    const newPlayerCount = gameForCode[0].player_count + 1;
 
     // Füge Nutzer dem Spiel hinzu
     const newP = newPlayer(user_sub);
     const updateQuery = {
+        $set: { player_count: newPlayerCount },
         $push: { players: newP },
     };
     await games.updateOne(query, updateQuery);

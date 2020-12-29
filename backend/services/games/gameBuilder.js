@@ -14,6 +14,7 @@ function getNewGame(creator_sub) {
         next_dealer: 0,
         rounds_played: 0,
         blind_rules: getDefaultBlindRules(),
+        player_count: 1,
     }
 }
 

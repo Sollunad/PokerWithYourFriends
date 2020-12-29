@@ -28,4 +28,6 @@ export class Game {
     rounds_played: number;
     // Blind rules
     blind_rules: BlindRules;
+    // Count of players, needed because mongoDB does not want to query over array sizes
+    player_count: number;
 }
