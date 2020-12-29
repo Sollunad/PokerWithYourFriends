@@ -40,7 +40,13 @@
             <v-card
               class="player-card"
               elevation="10"
-              :color="player.is_turn ? 'green' : player.is_round_winner ? 'yellow' : ''"
+              :color="
+                player.is_turn
+                  ? 'green'
+                  : player.is_round_winner
+                  ? 'yellow'
+                  : ''
+              "
             >
               <v-card-title class="player-title justify-space-between">
                 <span class="you" v-if="player.is_self">
@@ -52,7 +58,10 @@
                 <v-chip v-if="player.is_sb">SB</v-chip>
                 <v-chip v-if="player.is_bb">BB</v-chip>
               </v-card-title>
-              <v-card-text>Bank: {{ player.chips_bank }}$ | Bet: {{ player.chips_bet }}$</v-card-text>
+              <v-card-text
+                >Bank: {{ player.chips_bank }}$ | Bet:
+                {{ player.chips_bet }}$</v-card-text
+              >
             </v-card>
             <v-img
               v-if="$store.state.game_state.round_running && !player.has_fold"
@@ -68,15 +77,13 @@
               max-width="60"
               class="player-card2"
             ></v-img>
-            <!-- <span :class="lastActionClass(idx + 1)">$store.state.game_state.player.last_action</span> -->
-            <span :class="lastActionClass(idx + 1)">Check</span>
           </div>
         </div>
       </v-row>
     </v-container>
     <!-- ++++++++++++++++++ End of Table ++++++++++++++++++-->
     <!-- ++++++++++++++++++++++++++++++ Settings ++++++++++++++++++++++++++++++-->
-    <v-container grid-list-md fluid class="ingame_settings">
+    <v-container fluid class="ingame_settings">
       <v-layout row wrap>
         <v-btn v-if="isAdmin && !round_running" @click="startRound" block
           >Start next round</v-btn
@@ -259,12 +266,10 @@ export default {
   color: white;
   position: relative;
 
-  --table-width: 800px;
-  --table-height: 200px;
-
-  --player-card-width: 200px;
-  --player-card-height: 150px;
+  --table-width: 650px;
+  --table-height: 130px;
 }
+
 .ingame_setting {
   background-color: var(--clr-green);
 }
@@ -280,7 +285,7 @@ export default {
 }
 .table-left,
 .table-right {
-  height: 200px;
+  height: var(--table-height);
   width: 200px;
   border-radius: 50%;
   position: absolute;
@@ -298,6 +303,7 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 400px;
+  height: 115px;
   border: 2px solid black;
 }
 
@@ -332,45 +338,78 @@ export default {
 .player-8,
 .player-9 {
   position: absolute;
-  /* height: var(--player-card-height); */
   width: var(--player-card-width);
-  /* border: 2px solid green; */
+  transform: scale(0.8);
 }
 
 .player-1 {
-  top: -240px;
+  top: -230px;
 }
 .player-2 {
-  left: 300px;
-  top: -240px;
+  left: 225px;
+  top: -230px;
 }
 .player-3 {
   right: 0;
-  top: -240px;
+  top: -230px;
 }
 .player-4 {
-  right: -400px;
-  top: -80px;
+  right: -350px;
+  top: -150px;
 }
 .player-5 {
-  right: -400px;
-  bottom: -80px;
+  right: -350px;
+  bottom: -100px;
 }
 .player-6 {
   right: 0;
-  bottom: -140px;
+  bottom: -110px;
 }
 .player-7 {
-  left: 300px;
-  bottom: -140px;
+  left: 225px;
+  bottom: -110px;
 }
 .player-8 {
-  bottom: -140px;
+  bottom: -110px;
 }
 .player-9 {
-  left: -400px;
+  left: -350px;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(-50%) scale(0.8);
+}
+
+@media screen and (min-width: 1450px) {
+  .ingame {
+    --table-width: 800px;
+    --table-height: 200px;
+  }
+  .player-1,
+  .player-2,
+  .player-3,
+  .player-4,
+  .player-5,
+  .player-6,
+  .player-7,
+  .player-8,
+  .player-9 {
+    transform: scale(1);
+  }
+  .player-9 {
+    transform: translateY(-50%);
+  }
+  .player-2,
+  .player-7 {
+    left: 300px;
+  }
+
+  .player-4,
+  .player-5 {
+    right: -400px;
+  }
+
+  .player-9 {
+    left: -400px;
+  }
 }
 
 .last-action-player-1,
@@ -423,7 +462,7 @@ export default {
 .pot {
   position: absolute;
   top: 50%;
-  left: 75px;
+  left: 60px;
   color: black;
   transform: translate(-50%, -50%);
 }
