@@ -310,7 +310,7 @@ Table.prototype.setCurrentPlayerForNewRound = function () {
     this.players[this.currentPlayer].folded ||
     this.players[this.currentPlayer].allIn
   ) {
-    this.currentPlayer = this.currentPlayer + (1 % this.players.length);
+    this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
   }
 };
 
@@ -320,7 +320,7 @@ Table.prototype.moveCurrentPlayerForward = function () {
     this.players[this.currentPlayer].folded ||
     this.players[this.currentPlayer].allIn
   ) {
-    this.currentPlayer = this.currentPlayer + (1 % this.players.length);
+    this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
   }
 };
 
