@@ -50,13 +50,15 @@ function start(server) {
 async function broadcastGameState(game_code) {
     const clientsForGame = clients.filter(c => c.game_code === game_code);
     const beGame = await getGame(game_code);
-    if (!beGame) return;
     const table = getTable(game_code);
 
     clientsForGame.forEach((client) => {
         const user_id = client.user_id;
         const socket = client.socket;
-        const feGameState = getFEGameState(beGame, table, user_id, clientsForGame);
-        socket.send({game: feGameState});
+        if (!beGame) socket.send({error: 'Game does not exist'});
+        else {
+            const feGameState = getFEGameState(beGame, table, user_id, clientsForGame);
+            socket.send({game: feGameState});
+        }
     });
 }
