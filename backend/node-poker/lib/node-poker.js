@@ -352,8 +352,6 @@ Player.prototype.Check = function () {
       user_id: this.playerName,
     });
     progress(this.table);
-  } else {
-    console.log("Check not allowed, replay please");
   }
 };
 
