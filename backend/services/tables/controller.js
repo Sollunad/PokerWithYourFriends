@@ -19,7 +19,13 @@ async function createTable(game_code, user_sub) {
     let blindStepNum = Math.floor(beGame.rounds_played / beGame.blind_rules.raise_every_n_rounds);
     if (blindStepNum >= beGame.blind_rules.steps.length) blindStepNum = beGame.blind_rules.steps.length - 1;
     const blindStep = beGame.blind_rules.steps[blindStepNum];
-    const table = new poker.Table(game_code, blindStep.small, blindStep.big, beGame.next_dealer);
+
+    const next_dealer_user_id = beGame.players[beGame.next_dealer].user_id;
+    let next_dealer_id;
+    for (let i = 0; i < livingPlayers.length; i++) {
+        if (livingPlayers[i].user_id === next_dealer_user_id) next_dealer_id = i;
+    }
+    const table = new poker.Table(game_code, blindStep.small, blindStep.big, next_dealer_id);
     for (const player of livingPlayers) {
         table.AddPlayer(player.user_id, player.chips);
     }
