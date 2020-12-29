@@ -7,6 +7,7 @@
 
 <script type="text/javascript">
 import { io } from "socket.io-client";
+import config from '../../config';
 import Lobby from "../components/Lobby.vue";
 import Ingame from "../components/Ingame.vue";
 
@@ -31,7 +32,8 @@ export default {
     }
   },
   async mounted() {
-    const socket = io.connect("http://localhost:8081", {
+    const environment = process.env.NODE_ENV;
+    const socket = io.connect(config[environment], {
       extraHeaders: {
         Authorization: `Bearer ${await this.$auth.getTokenSilently()}`,
         game_code: this.game_code

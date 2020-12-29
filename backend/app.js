@@ -2,14 +2,13 @@ const { createNewGame, joinGame } = require("./services/games/controller");
 
 const express = require("express");
 const cors = require("cors");
+const fs = require('fs');
 const app = express();
 const http = require("http");
 const https = require("https");
 const jwt = require("express-jwt");
 const jwks = require("jwks-rsa");
 const ws = require('./websocket/setup');
-
-serveHTTP();
 
 const corsOptions = {
   origin: "*",
@@ -60,6 +59,28 @@ function serveHTTP() {
 
 function serveHTTPS(credentials) {
   const server = https.createServer(credentials, app);
-  server.listen(8080);
+  server.listen(8082);
   ws.start(server);
+}
+
+try {
+  // Certificate
+  const privateKey = fs.readFileSync('/etc/letsencrypt/live/api.pwfy.sollunad.de/privkey.pem', 'utf8');
+  const certificate = fs.readFileSync('/etc/letsencrypt/live/api.pwfy.sollunad.de/cert.pem', 'utf8');
+  const ca = fs.readFileSync('/etc/letsencrypt/live/api.pwfy.sollunad.de/chain.pem', 'utf8');
+
+  const credentials = {
+    key: privateKey,
+    cert: certificate,
+    ca: ca
+  };
+
+  const env = process.argv[2];
+  if (env === 'http') {
+    serveHTTP();
+  } else {
+    serveHTTPS(credentials);
+  }
+} catch (e) {
+  serveHTTP();
 }

@@ -13,7 +13,7 @@ let clients = [];
 function start(server) {
     const ioServer = io(server, {
         cors: {
-            origin: 'http://localhost:8080',
+            origin: ['http://localhost:8080', 'https://pwfy.sollunad.de'],
             credentials: true,
         },
     });
