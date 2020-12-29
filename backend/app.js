@@ -65,9 +65,9 @@ function serveHTTPS(credentials) {
 
 try {
   // Certificate
-  const privateKey = fs.readFileSync('/etc/letsencrypt/live/api.pwfy.sollunad.de/privkey.pem', 'utf8');
-  const certificate = fs.readFileSync('/etc/letsencrypt/live/api.pwfy.sollunad.de/cert.pem', 'utf8');
-  const ca = fs.readFileSync('/etc/letsencrypt/live/api.pwfy.sollunad.de/chain.pem', 'utf8');
+  const privateKey = fs.readFileSync('/etc/letsencrypt/live/sv.sollunad.de/privkey.pem', 'utf8');
+  const certificate = fs.readFileSync('/etc/letsencrypt/live/sv.sollunad.de/cert.pem', 'utf8');
+  const ca = fs.readFileSync('/etc/letsencrypt/live/sv.sollunad.de/chain.pem', 'utf8');
 
   const credentials = {
     key: privateKey,
