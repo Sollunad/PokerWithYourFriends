@@ -430,10 +430,9 @@ function rankHandInt(hand) {
 }
 
 function rankHand(hand) {
-    var myResult = rankHandInt(hand);
+    const myResult = rankHandInt(hand);
     hand.rank = myResult.rank;
     hand.message = myResult.message;
-
     return hand;
 }
 

@@ -10,6 +10,7 @@ exports.adjustBlinds = adjustBlinds;
 exports.updateChipsForPlayer = updateChipsForPlayer;
 exports.updateChipsForUsername = updateChipsForUsername;
 exports.setUsername = setUsername;
+exports.deleteGame = deleteGame;
 
 async function createNewGame(creator_sub) {
     const connector = new Connector();
@@ -204,4 +205,16 @@ async function setUsername(game_code, user_sub, name) {
     if (!gameForCode.length) return {db_status: 'error', error: 'Game not found'};
     await games.updateOne(query, updateQuery);
     return {db_status: 'success'};
+}
+
+async function deleteGame(game_code, admin_sub) {
+    const connector = new Connector();
+    await connector.connect();
+    const games = connector.games();
+
+    const query = {
+        code: game_code,
+        admin: admin_sub,
+    };
+    await games.deleteOne(query);
 }
