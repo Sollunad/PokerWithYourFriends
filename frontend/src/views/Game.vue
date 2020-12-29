@@ -41,6 +41,7 @@ export default {
     });
     socket.on("message", data => {
       this.$store.commit("setGameState", { game_state: data.game });
+      console.log(data.game);
       this.$store.dispatch("updateFormUsernameFromGameState");
     });
     this.$store.commit("setSocket", { socket: socket });
