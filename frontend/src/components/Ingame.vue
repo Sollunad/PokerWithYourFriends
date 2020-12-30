@@ -2,29 +2,75 @@
   <div class="ingame">
     <!-- ++++++++++++++++++ Table ++++++++++++++++++-->
     <v-container fill-height fluid grid-list-md class="ingame_table">
-      <v-btn v-if="isAdmin" class="leave-btn" @click="deleteGame">
-        Delete the game
-      </v-btn>
+      <v-dialog v-if="isAdmin" v-model="dialog" width="500">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            color="red lighten-2"
+            class="leave-btn"
+            dark
+            v-bind="attrs"
+            v-on="on"
+          >
+            Delete the game
+          </v-btn>
+        </template>
+
+        <v-card>
+          <v-card-title class="headline grey lighten-2 justify-space-between">
+            Are you sure?
+            <v-btn color="red" @click="deleteGame">
+              Delete
+            </v-btn>
+          </v-card-title>
+        </v-card>
+      </v-dialog>
       <v-row>
         <div class="table my-0 mx-auto ">
           <div class="table-left"></div>
           <div class="table-right"></div>
-          <div class="pot">
-            <h2>Pot:</h2>
-            <h2>{{ $store.state.game_state.pot }}$</h2>
-          </div>
-          <v-container class="board">
-            <v-layout row>
-              <v-flex v-for="(idx, i) in [0, 1, 2, 3, 4]" :key="i">
-                <v-img
-                  max-height="150"
-                  max-width="60"
-                  v-if="$store.state.game_state.round_running"
-                  :src="getCardBoard($store.state.game_state.board[idx])"
-                ></v-img>
+          <v-container fill-height grid-list-md>
+            <v-layout align-center justify-space-around>
+              <v-flex md1>
+                <h2>Pot:</h2>
+                <h2>{{ $store.state.game_state.pot }}$</h2>
+              </v-flex>
+              <v-flex md6>
+                <v-container class="board">
+                  <v-layout row>
+                    <v-flex v-for="(idx, i) in [0, 1, 2, 3, 4]" :key="i">
+                      <v-img
+                        max-height="150"
+                        max-width="60"
+                        v-if="$store.state.game_state.round_running"
+                        :src="getCardBoard($store.state.game_state.board[idx])"
+                      ></v-img>
+                    </v-flex>
+                  </v-layout>
+                </v-container>
+              </v-flex>
+              <v-flex md3>
+                <div class="mb-2">Round: {{ $store.state.current_round }}</div>
+                <div class="mb-2">
+                  Current blinds:
+                  <v-chip>
+                    {{ $store.state.game_state.blind_rules.steps[0].small }}/{{
+                      $store.state.game_state.blind_rules.steps[0].big
+                    }}</v-chip
+                  >
+                </div>
+                <div>
+                  Increase to
+                  <v-chip
+                    >{{ $store.state.game_state.blind_rules.steps[1].small }}/{{
+                      $store.state.game_state.blind_rules.steps[1].big
+                    }}</v-chip
+                  >
+                  in {{ roundsTillNextBlind }} rounds
+                </div>
               </v-flex>
             </v-layout>
           </v-container>
+
           <div
             v-for="(player, idx) in $store.state.game_state.players"
             :key="idx"
@@ -191,7 +237,8 @@ export default {
   name: "Ingame",
   data() {
     return {
-      raise_amount: 0
+      raise_amount: 0,
+      dialog: false
     };
   },
   computed: {
@@ -247,10 +294,18 @@ export default {
     },
     logText() {
       return this.$store.state.game_state.event_list.join("\n");
+    },
+    roundsTillNextBlind() {
+      return (
+        this.$store.state.game_state.blind_rules.raise_every_n_rounds -
+        (this.$store.state.current_round %
+          this.$store.state.game_state.blind_rules.raise_every_n_rounds)
+      );
     }
   },
   methods: {
     deleteGame() {
+      this.dialog = false;
       this.$store.state.socket.emit("message", { action: "deleteGame" });
       this.$router.push("/");
     },
@@ -262,6 +317,7 @@ export default {
     },
     startRound() {
       this.$store.state.socket.emit("message", { action: "startRound" });
+      this.$store.commit("nextRound");
     },
     finishRound() {
       this.$store.state.socket.emit("message", { action: "finishRound" });
@@ -334,7 +390,7 @@ export default {
   display: grid;
   grid-template-rows: 1fr auto;
   text-align: left;
-  color: white;
+  /* color: white; */
   position: relative;
 
   --table-width: 650px;
@@ -353,6 +409,7 @@ export default {
   width: var(--table-width);
   background-color: white;
   position: relative;
+  z-index: 2;
 }
 .table-left,
 .table-right {
@@ -362,6 +419,7 @@ export default {
   position: absolute;
   background-color: white;
   transform: translateX(-50%);
+  z-index: -1;
 }
 .table-right {
   right: 0;
@@ -369,11 +427,6 @@ export default {
 }
 
 .board {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 400px;
   height: 115px;
   border: 2px solid black;
 }
@@ -434,14 +487,14 @@ export default {
 }
 .player-6 {
   right: 0;
-  bottom: -110px;
+  bottom: -125px;
 }
 .player-7 {
   left: 225px;
-  bottom: -110px;
+  bottom: -125px;
 }
 .player-8 {
-  bottom: -110px;
+  bottom: -125px;
 }
 .player-9 {
   left: -350px;
@@ -528,14 +581,6 @@ export default {
 
 .player-title {
   position: relative;
-}
-
-.pot {
-  position: absolute;
-  top: 50%;
-  left: 60px;
-  color: black;
-  transform: translate(-50%, -50%);
 }
 
 .between_rounds {

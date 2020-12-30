@@ -26,17 +26,23 @@ const store = new Vuex.Store({
   state: {
     game_state: undefined,
     socket: undefined,
-    form_username: '',
+    form_username: "",
+    current_round: 0
   },
   getters: {
     current_user(state) {
       if (!state.game_state) return undefined;
-      return state.game_state.players.find(p => p.is_self) || { not_joined: true };
+      return (
+        state.game_state.players.find(p => p.is_self) || { not_joined: true }
+      );
     }
   },
   mutations: {
     setGameState(state, { game_state }) {
       state.game_state = game_state;
+    },
+    nextRound(state) {
+      state.current_round++;
     },
     addBlindStep(state, { small, big }) {
       state.game_state.blind_rules.steps.push({ small, big });
@@ -58,9 +64,10 @@ const store = new Vuex.Store({
     updateFormUsernameFromGameState(store) {
       if (!store.getters.current_user) return;
       const gameStateUsername = store.getters.current_user.name;
-      if (store.state.form_username === '' && gameStateUsername) store.commit('setFormUsername', { name: gameStateUsername });
+      if (store.state.form_username === "" && gameStateUsername)
+        store.commit("setFormUsername", { name: gameStateUsername });
     }
-  },
+  }
 });
 
 new Vue({
