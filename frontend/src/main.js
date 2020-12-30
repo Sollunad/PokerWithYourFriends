@@ -58,9 +58,9 @@ const store = new Vuex.Store({
     updateFormUsernameFromGameState(store) {
       if (!store.getters.current_user) return;
       const gameStateUsername = store.getters.current_user.name;
-      if (store.state.form_username === '') store.commit('setFormUsername', { name: gameStateUsername });
+      if (store.state.form_username === '' && gameStateUsername) store.commit('setFormUsername', { name: gameStateUsername });
     }
-  }
+  },
 });
 
 new Vue({

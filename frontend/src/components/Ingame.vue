@@ -129,10 +129,11 @@
                 </v-icon>
               </template>
             </v-slider>
-            <v-layout row wrap justify-space-around>
+            <v-layout row wrap>
               <v-flex md2>
                 <v-btn @click="btnFold" block>Fold</v-btn>
               </v-flex>
+              <v-flex md2></v-flex>
               <v-flex v-if="canCheck" @click="btnCheck" md2>
                 <v-btn block>Check</v-btn>
               </v-flex>
@@ -142,6 +143,7 @@
               <v-flex v-else @click="btnCall" md2>
                 <v-btn block color="red">Call All In</v-btn>
               </v-flex>
+              <v-flex md2></v-flex>
               <v-flex v-if="raise_amount === maxRaise" @click="btnRaise" md2>
                 <v-btn block color="red">Raise All In</v-btn>
               </v-flex>
@@ -282,6 +284,13 @@ export default {
     },
     lastActionClass(idx) {
       return `last-action-player-${idx}`;
+    }
+  },
+  watch: {
+    isTurn() {
+      if (this.isTurn) {
+        this.raise_amount = this.minRaise;
+      }
     }
   }
 };
