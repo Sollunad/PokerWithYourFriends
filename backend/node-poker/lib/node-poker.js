@@ -139,15 +139,6 @@ function checkForWinner(table) {
     }
   }
 
-  for (const gameWinner of table.gameWinners) {
-    table.event_list.push({
-      event: 'winner',
-      user_id: gameWinner.playerName,
-      amount: gameWinner.amount,
-      hand: countPlayersIngame > 1 ? gameWinner.hand.message : undefined,
-    });
-  }
-
   let roundEnd = true;
   for (let i = 0; i < table.game.roundBets.length; i++) {
     if (table.game.roundBets[i] !== 0) {
@@ -156,6 +147,15 @@ function checkForWinner(table) {
   }
   if (!roundEnd) {
     checkForWinner(table);
+  } else {
+    for (const gameWinner of table.gameWinners) {
+      table.event_list.push({
+        event: 'winner',
+        user_id: gameWinner.playerName,
+        amount: gameWinner.amount,
+        hand: countPlayersIngame > 1 ? gameWinner.hand.message : undefined,
+      });
+    }
   }
 }
 

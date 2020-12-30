@@ -85,10 +85,19 @@
     <!-- ++++++++++++++++++++++++++++++ Settings ++++++++++++++++++++++++++++++-->
     <v-container fluid class="ingame_settings">
       <v-layout row wrap>
-        <v-flex md6>
-
+        <v-flex md5 class="game_log">
+          <v-virtual-scroll
+                  :items="$store.state.game_state.event_list"
+                  height="150"
+                  item-height="25"
+          >
+            <template v-slot:default="{ item }">
+              {{ item }}
+            </template>
+          </v-virtual-scroll>
         </v-flex>
-        <v-flex md6>
+        <v-flex md1></v-flex>
+        <v-flex md5>
           <div class="between_rounds">
             <v-btn v-if="isAdmin && !round_running" @click="startRound" block
             >Start next round</v-btn
@@ -182,7 +191,7 @@ export default {
       return this.$store.getters.current_user.call_value === 0;
     },
     canShowCards() {
-      return this.round_finished && !this.$store.getters.current_user.shows_cards;
+      return this.round_finished && !this.$store.getters.current_user.shows_cards && !this.$store.getters.current_user.has_fold;
     },
     canCallWithoutAllIn() {
       return (
@@ -202,6 +211,9 @@ export default {
     },
     adminLogo() {
       return `${this.baseUrl}/admin_crown.svg`;
+    },
+    logText() {
+      return this.$store.state.game_state.event_list.join('\n');
     }
   },
   methods: {
@@ -488,6 +500,10 @@ export default {
 
 .between_rounds {
   margin: 16px 0;
+}
+
+.game_log {
+  margin-left: 16px;
 }
 
 .greencolor {
