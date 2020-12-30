@@ -34,6 +34,7 @@ function getFEPlayer(bePlayer, beGame, table, user_id, clientsForGame) {
         is_round_winner: table ? table.gameWinners.some(w => w.playerName === bePlayer.user_id) : false,
         is_out: bePlayer.chips === 0,
         has_fold: table_player ? table_player.folded : false,
+        shows_cards: table_player ? table_player.showCards : false,
         cards: getPlayerCards(table_player, user_id),
         chips_bank: table_player ? table_player.chips : bePlayer.chips,
         chips_bet: table_player ? table.game.bets[table_player_id] : 0,

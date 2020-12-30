@@ -85,52 +85,63 @@
     <!-- ++++++++++++++++++++++++++++++ Settings ++++++++++++++++++++++++++++++-->
     <v-container fluid class="ingame_settings">
       <v-layout row wrap>
-        <v-btn v-if="isAdmin && !round_running" @click="startRound" block
-          >Start next round</v-btn
-        >
-        <v-btn v-if="isAdmin && round_finished" @click="finishRound" block
-          >Finish round</v-btn
-        >
-        <v-container v-if="isTurn" grid-list-md>
-          <v-slider
-            v-model="raise_amount"
-            :min="minRaise"
-            :max="maxRaise"
-            step="5"
-          >
-            <template v-slot:prepend>
-              <v-icon @click="decrement_raise">
-                mdi-minus
-              </v-icon>
-            </template>
+        <v-flex md6>
 
-            <template v-slot:append>
-              <v-icon @click="increment_raise">
-                mdi-plus
-              </v-icon>
-            </template>
-          </v-slider>
-          <v-layout row wrap justify-space-around>
-            <v-flex md2>
-              <v-btn @click="btnFold" block>Fold</v-btn>
-            </v-flex>
-            <v-flex v-if="canCheck" @click="btnCheck" md2>
-              <v-btn block>Check</v-btn>
-            </v-flex>
-            <v-flex v-else-if="canCallWithoutAllIn" @click="btnCall" md2>
-              <v-btn block>{{ callButtonText }}</v-btn>
-            </v-flex>
-            <v-flex v-else @click="btnCall" md2>
-              <v-btn block color="red">Call All In</v-btn>
-            </v-flex>
-            <v-flex v-if="raise_amount === maxRaise" @click="btnRaise" md2>
-              <v-btn block color="red">Raise All In</v-btn>
-            </v-flex>
-            <v-flex v-else @click="btnRaise" md2>
-              <v-btn block>{{ raiseButtonText }}</v-btn>
-            </v-flex>
-          </v-layout>
-        </v-container>
+        </v-flex>
+        <v-flex md6>
+          <div class="between_rounds">
+            <v-btn v-if="isAdmin && !round_running" @click="startRound" block
+            >Start next round</v-btn
+            >
+            <v-btn v-if="isAdmin && round_finished" @click="finishRound" block
+            >Finish round</v-btn
+            >
+            <v-btn v-if="canShowCards" @click="showCards" block
+            >Show your cards</v-btn
+            >
+          </div>
+
+          <v-container v-if="isTurn" grid-list-md>
+            <v-slider
+                    v-model="raise_amount"
+                    :min="minRaise"
+                    :max="maxRaise"
+                    step="5"
+            >
+              <template v-slot:prepend>
+                <v-icon @click="decrement_raise">
+                  mdi-minus
+                </v-icon>
+              </template>
+
+              <template v-slot:append>
+                <v-icon @click="increment_raise">
+                  mdi-plus
+                </v-icon>
+              </template>
+            </v-slider>
+            <v-layout row wrap justify-space-around>
+              <v-flex md2>
+                <v-btn @click="btnFold" block>Fold</v-btn>
+              </v-flex>
+              <v-flex v-if="canCheck" @click="btnCheck" md2>
+                <v-btn block>Check</v-btn>
+              </v-flex>
+              <v-flex v-else-if="canCallWithoutAllIn" @click="btnCall" md2>
+                <v-btn block>{{ callButtonText }}</v-btn>
+              </v-flex>
+              <v-flex v-else @click="btnCall" md2>
+                <v-btn block color="red">Call All In</v-btn>
+              </v-flex>
+              <v-flex v-if="raise_amount === maxRaise" @click="btnRaise" md2>
+                <v-btn block color="red">Raise All In</v-btn>
+              </v-flex>
+              <v-flex v-else @click="btnRaise" md2>
+                <v-btn block>{{ raiseButtonText }}</v-btn>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-flex>
       </v-layout>
     </v-container>
     <!-- ++++++++++++++++++ End of Settings ++++++++++++++++++-->
@@ -169,6 +180,9 @@ export default {
     },
     canCheck() {
       return this.$store.getters.current_user.call_value === 0;
+    },
+    canShowCards() {
+      return this.round_finished && !this.$store.getters.current_user.shows_cards;
     },
     canCallWithoutAllIn() {
       return (
@@ -230,6 +244,11 @@ export default {
         action: "playMove",
         move: "raise",
         value: this.raise_amount
+      });
+    },
+    showCards() {
+      this.$store.state.socket.emit("message", {
+        action: "showCards",
       });
     },
     getCard(card) {
@@ -465,6 +484,10 @@ export default {
   left: 60px;
   color: black;
   transform: translate(-50%, -50%);
+}
+
+.between_rounds {
+  margin: 16px 0;
 }
 
 .greencolor {

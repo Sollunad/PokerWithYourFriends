@@ -1,10 +1,11 @@
-const { getAdminGame, updateChipsForPlayer, setRoundCounter, setNextDealer } = require('../games/controller');
+const { getGame, getAdminGame, updateChipsForPlayer, setRoundCounter, setNextDealer } = require('../games/controller');
 const poker = require('../../node-poker/lib/node-poker');
 
 exports.createTable = createTable;
 exports.getTable = getTable;
 exports.processAndClearTable = processAndClearTable;
 exports.playMove = playMove;
+exports.showCards = showCards;
 
 let tables = [];
 
@@ -41,7 +42,7 @@ async function processAndClearTable(game_code, user_sub) {
     const beGame = await getAdminGame(game_code, user_sub);
     if (!beGame) return;
     const table = getTable(game_code);
-    if (table.game.roundName !== 'Showdown') return;
+    if (!table || table.game.roundName !== 'Showdown') return;
     const livingPlayers = beGame.players.filter(p => p.chips > 0);
     for (const player of livingPlayers) {
         const table_player = table.players.find(p => p.playerName === player.user_id);
@@ -62,6 +63,15 @@ async function processAndClearTable(game_code, user_sub) {
     await setNextDealer(game_code, user_sub, newDealer);
 
     tables = tables.filter(t => t.game_code !== game_code);
+}
+
+async function showCards(game_code, user_sub) {
+    const beGame = await getGame(game_code);
+    if (!beGame) return;
+    const table = getTable(game_code);
+    if (!table || table.game.roundName !== 'Showdown') return;
+    const table_player = table.players.find(p => p.playerName === user_sub);
+    if (table_player) table_player.showCards = true;
 }
 
 function playMove(game_code, user_sub, move, value) {

@@ -18,6 +18,7 @@ class FEPlayer {
   is_round_winner: boolean;
   is_out: boolean;
   has_fold: boolean;
+  shows_cards: boolean;
   cards: Card[];
   chips_bank: number;
   chips_bet: number;
