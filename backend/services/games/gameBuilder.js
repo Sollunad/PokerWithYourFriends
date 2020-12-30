@@ -1,8 +1,9 @@
 const randomString = require('random-base64-string');
-const { uniqueNamesGenerator, adjectives, colors, animals } = require('unique-names-generator');
+const { uniqueNamesGenerator, colors, animals, NumberDictionary } = require('unique-names-generator');
 
 exports.newGame = getNewGame;
 exports.newPlayer = getNewPlayer;
+exports.getRandomPlayerName = getRandomPlayerName;
 
 function getNewGame(creator_sub) {
     return {
@@ -45,9 +46,12 @@ function getDefaultBlindRules() {
 }
 
 function getRandomPlayerName() {
+    const animals11Letters = animals.filter(a => a.length <= 11);
+    const numbers = NumberDictionary.generate({ min: 1000, max: 9999 });
     const config = {
-        dictionaries: [adjectives, colors, animals],
-        separator: ' ',
+        dictionaries: [animals11Letters, numbers],
+        length: 2,
+        separator: '',
         style: 'capital',
     };
     return uniqueNamesGenerator(config);

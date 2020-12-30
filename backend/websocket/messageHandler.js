@@ -1,4 +1,4 @@
-const { startGame, adjustBlinds, setUsername, updateChipsForUsername, deleteGame, joinGame } = require('../services/games/controller');
+const { startGame, adjustBlinds, setUsername, getRandomName, updateChipsForUsername, deleteGame, joinGame } = require('../services/games/controller');
 const { createTable, playMove, processAndClearTable, showCards } = require('../services/tables/controller');
 
 exports.handle = handleMessage;
@@ -11,6 +11,7 @@ async function handleMessage(message, game_code, user_id) {
         case 'deleteGame': await deleteGame(game_code, user_id); return;
         case 'adjustBlinds': await adjustBlinds(game_code, user_id, message.blinds); return;
         case 'setUsername': await setUsername(game_code, user_id, message.name); return;
+        case 'getRandomName': await getRandomName(game_code, user_id); return;
         case 'startRound': await createTable(game_code, user_id); return;
         case 'finishRound': await processAndClearTable(game_code, user_id); return;
         case 'playMove': await playMove(game_code, user_id, message.move, message.value); return;

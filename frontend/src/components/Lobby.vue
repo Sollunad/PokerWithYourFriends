@@ -79,9 +79,11 @@
                             <v-card-text>
                                 <v-text-field
                                         v-model="localUsername"
-                                        label="Username:"
+                                        label="Username"
+                                        counter="15"
                                 ></v-text-field>
-                                <v-btn @click="saveUsername">Save Username</v-btn>
+                                <v-btn :disabled="localUsername.length > 15" @click="saveUsername">Save Username</v-btn>
+                                <v-btn @click="getRandomName">Get new random name</v-btn>
                             </v-card-text>
                         </v-card>
                         <v-container>
@@ -181,6 +183,12 @@
                 this.$store.state.socket.emit("message", {
                     action: "setUsername",
                     name: this.$store.state.form_username
+                });
+            },
+            getRandomName() {
+                this.$store.commit('setFormUsername', { name: '' });
+                this.$store.state.socket.emit("message", {
+                    action: "getRandomName",
                 });
             },
             selectPlayer(player) {

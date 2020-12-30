@@ -1,4 +1,4 @@
-const {newGame, newPlayer} = require("./gameBuilder");
+const {newGame, newPlayer, getRandomPlayerName} = require("./gameBuilder");
 const {Connector} = require("../../db/connector");
 
 exports.createNewGame = createNewGame;
@@ -12,6 +12,7 @@ exports.setNextDealer = setNextDealer;
 exports.updateChipsForPlayer = updateChipsForPlayer;
 exports.updateChipsForUsername = updateChipsForUsername;
 exports.setUsername = setUsername;
+exports.getRandomName = getRandomName;
 exports.deleteGame = deleteGame;
 
 async function createNewGame(creator_sub) {
@@ -273,7 +274,7 @@ async function updateChipsForUsername(game_code, admin_sub, user_name, chips) {
 }
 
 async function setUsername(game_code, user_sub, name) {
-    if (!name) return;
+    if (!name || name.length > 15) return;
 
     const connector = new Connector();
     await connector.connect();
@@ -298,6 +299,11 @@ async function setUsername(game_code, user_sub, name) {
     await games.updateOne(query, updateQuery);
     await connector.close();
     return {db_status: 'success'};
+}
+
+async function getRandomName(game_code, user_sub) {
+    const newName = getRandomPlayerName();
+    await setUsername(game_code, user_sub, newName);
 }
 
 async function deleteGame(game_code, admin_sub) {
