@@ -64,14 +64,22 @@
               >
             </v-card>
             <v-img
-              v-if="$store.state.game_state.round_running && !player.has_fold && player.cards[0]"
+              v-if="
+                $store.state.game_state.round_running &&
+                  !player.has_fold &&
+                  player.cards[0]
+              "
               :src="getCard(player.cards[0])"
               max-height="150"
               max-width="60"
               class="player-card1"
             ></v-img>
             <v-img
-              v-if="$store.state.game_state.round_running && !player.has_fold && player.cards[1]"
+              v-if="
+                $store.state.game_state.round_running &&
+                  !player.has_fold &&
+                  player.cards[1]
+              "
               :src="getCard(player.cards[1])"
               max-height="150"
               max-width="60"
@@ -87,9 +95,9 @@
       <v-layout row wrap>
         <v-flex md5 class="game_log">
           <v-virtual-scroll
-                  :items="$store.state.game_state.event_list"
-                  height="150"
-                  item-height="25"
+            :items="$store.state.game_state.event_list"
+            height="150"
+            item-height="25"
           >
             <template v-slot:default="{ item }">
               {{ item }}
@@ -100,35 +108,54 @@
         <v-flex md5>
           <div class="between_rounds">
             <v-btn v-if="isAdmin && !round_running" @click="startRound" block
-            >Start next round</v-btn
+              >Start next round</v-btn
             >
             <v-btn v-if="isAdmin && round_finished" @click="finishRound" block
-            >Finish round</v-btn
+              >Finish round</v-btn
             >
             <v-btn v-if="canShowCards" @click="showCards" block
-            >Show your cards</v-btn
+              >Show your cards</v-btn
             >
           </div>
 
           <v-container v-if="isTurn" grid-list-md>
-            <v-slider
-                    v-model="raise_amount"
-                    :min="minRaise"
-                    :max="maxRaise"
-                    step="5"
-            >
-              <template v-slot:prepend>
-                <v-icon @click="decrement_raise">
-                  mdi-minus
-                </v-icon>
-              </template>
+            <v-layout row wrap>
+              <v-flex md10>
+                <v-slider
+                  v-model="raise_amount"
+                  :min="minRaise"
+                  :max="maxRaise"
+                  step="5"
+                >
+                  <template v-slot:prepend>
+                    <v-icon @click="decrement_raise">
+                      mdi-minus
+                    </v-icon>
+                  </template>
 
-              <template v-slot:append>
-                <v-icon @click="increment_raise">
-                  mdi-plus
-                </v-icon>
-              </template>
-            </v-slider>
+                  <template v-slot:append>
+                    <v-icon @click="increment_raise">
+                      mdi-plus
+                    </v-icon>
+                  </template>
+                  <template v-slot:append>
+                    <v-icon @click="increment_raise">
+                      mdi-plus
+                    </v-icon>
+                  </template>
+                </v-slider>
+              </v-flex>
+              <v-flex md2>
+                <v-text-field
+                  v-model="raise_amount"
+                  class="mt-0 pt-0"
+                  type="number"
+                  style="width: 60px"
+                  step="5"
+                ></v-text-field>
+              </v-flex>
+            </v-layout>
+
             <v-layout row wrap>
               <v-flex md2>
                 <v-btn @click="btnFold" block>Fold</v-btn>
@@ -193,7 +220,11 @@ export default {
       return this.$store.getters.current_user.call_value === 0;
     },
     canShowCards() {
-      return this.round_finished && !this.$store.getters.current_user.shows_cards && !this.$store.getters.current_user.has_fold;
+      return (
+        this.round_finished &&
+        !this.$store.getters.current_user.shows_cards &&
+        !this.$store.getters.current_user.has_fold
+      );
     },
     canCallWithoutAllIn() {
       return (
@@ -215,7 +246,7 @@ export default {
       return `${this.baseUrl}/admin_crown.svg`;
     },
     logText() {
-      return this.$store.state.game_state.event_list.join('\n');
+      return this.$store.state.game_state.event_list.join("\n");
     }
   },
   methods: {
@@ -262,7 +293,7 @@ export default {
     },
     showCards() {
       this.$store.state.socket.emit("message", {
-        action: "showCards",
+        action: "showCards"
       });
     },
     getCard(card) {
