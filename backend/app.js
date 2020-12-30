@@ -1,4 +1,4 @@
-const { createNewGame, joinGame } = require("./services/games/controller");
+const { createNewGame } = require("./services/games/controller");
 
 const express = require("express");
 const cors = require("cors");
@@ -39,16 +39,6 @@ app.post("/games", async function (req, res) {
   } else {
     res.status(500).send({ error: db_response.error });
   }
-});
-
-app.post("/games/join", async function (req, res) {
-  const game_code = req.body.game_code;
-  if (!game_code) {
-    res.status(400).send({ error: "Game-Code fehlt" });
-    return;
-  }
-  const db_response = await joinGame(req.user.sub, game_code);
-  res.status(200).end();
 });
 
 function serveHTTP() {

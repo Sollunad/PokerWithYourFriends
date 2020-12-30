@@ -6,9 +6,9 @@
       >
     </v-container>
     <v-container>
-      <p>Join Game by passing the right code:</p>
+      <p>Join Game by passing the right code</p>
       <v-form @submit.prevent="joinGame">
-        <v-text-field v-model="game_code" :rules="rules"></v-text-field>
+        <v-text-field v-model="game_code" :rules="rules" solo></v-text-field>
 
         <v-btn type="submit" elevation="5" outlined medium> Join Lobby</v-btn>
       </v-form>
@@ -33,9 +33,6 @@ export default {
       await this.$router.push(`/game?code=${response.game_code}`);
     },
     async joinGame() {
-      await fetch(this, "games/join", "post", {
-        game_code: this.game_code
-      });
       await this.$router.push(`/game?code=${this.game_code}`);
     }
   }

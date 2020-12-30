@@ -40,7 +40,7 @@ async function createNewGame(creator_sub) {
     }
 }
 
-async function joinGame(user_sub, game_code) {
+async function joinGame(game_code, user_sub) {
     const connector = new Connector();
     await connector.connect();
     const games = connector.games();

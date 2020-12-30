@@ -40,6 +40,7 @@ export default {
       }
     });
     socket.on("message", data => {
+      if (data.error) this.$router.push('/');
       this.$store.commit("setGameState", { game_state: data.game });
       this.$store.dispatch("updateFormUsernameFromGameState");
     });

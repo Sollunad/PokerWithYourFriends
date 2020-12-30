@@ -31,7 +31,7 @@ const store = new Vuex.Store({
   getters: {
     current_user(state) {
       if (!state.game_state) return undefined;
-      return state.game_state.players.find(p => p.is_self) || {};
+      return state.game_state.players.find(p => p.is_self) || { not_joined: true };
     }
   },
   mutations: {
