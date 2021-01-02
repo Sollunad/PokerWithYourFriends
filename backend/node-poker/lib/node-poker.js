@@ -117,26 +117,48 @@ function checkForWinner(table) {
     }
   }
 
-  // TODO runden auf ganze Chips?
-  for (let i = 0; i < winners.length; i++) {
+  let leftToDistribute = 0;
+  for (const winner of winners) {
     const winnerPrize = prize / winners.length;
-    const winningPlayer = table.players[winners[i]];
-    winningPlayer.chips += winnerPrize;
+    const winnerPrizeRounded = Math.floor(winnerPrize / 5) * 5;
+    leftToDistribute += (winnerPrize - winnerPrizeRounded);
+    const winningPlayer = table.players[winner];
+    winningPlayer.chips += winnerPrizeRounded;
     if (countPlayersIngame > 1) winningPlayer.showCards = true;
     const pushedGameWinner = table.gameWinners.find(
       (w) => w.playerName === winningPlayer.playerName
     );
     if (pushedGameWinner) {
-      pushedGameWinner.amount += winnerPrize;
+      pushedGameWinner.amount += winnerPrizeRounded;
       pushedGameWinner.chips = winningPlayer.chips;
     } else {
       table.gameWinners.push({
         playerName: winningPlayer.playerName,
-        amount: winnerPrize,
+        amount: winnerPrizeRounded,
         hand: winningPlayer.hand,
         chips: winningPlayer.chips,
       });
     }
+  }
+
+  if (leftToDistribute > 0) {
+    let smallestDealerDistance = Infinity;
+    let winningPlayerId;
+    for (const winner of winners) {
+      let dealerDistance = winner - table.dealer;
+      if (dealerDistance < 0) dealerDistance += table.players.length;
+      if (dealerDistance < smallestDealerDistance) {
+        smallestDealerDistance = dealerDistance;
+        winningPlayerId = winner;
+      }
+    }
+    const winningPlayer = table.players[winningPlayerId];
+    winningPlayer.chips += leftToDistribute;
+    const pushedGameWinner = table.gameWinners.find(
+        (w) => w.playerName === winningPlayer.playerName
+    );
+    pushedGameWinner.amount += leftToDistribute;
+    pushedGameWinner.chips = winningPlayer.chips;
   }
 
   let roundEnd = true;
