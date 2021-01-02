@@ -36,4 +36,5 @@ export class GameState {
   call_value: number;
   min_raise: number;
   event_list: string[];
+  rounds_played: number;
 }

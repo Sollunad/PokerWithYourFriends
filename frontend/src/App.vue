@@ -12,9 +12,9 @@
         <v-btn v-if="!$auth.isAuthenticated" @click="login">Log in</v-btn>
         <v-btn v-else @click="logout">Log out</v-btn>
       </v-app-bar>
-      <v-content>
+      <v-main>
         <router-view />
-      </v-content>
+      </v-main>
     </v-app>
   </div>
 </template>

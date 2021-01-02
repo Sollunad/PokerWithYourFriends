@@ -26,8 +26,7 @@ const store = new Vuex.Store({
   state: {
     game_state: undefined,
     socket: undefined,
-    form_username: "",
-    current_round: 0
+    form_username: ""
   },
   getters: {
     current_user(state) {
@@ -40,9 +39,6 @@ const store = new Vuex.Store({
   mutations: {
     setGameState(state, { game_state }) {
       state.game_state = game_state;
-    },
-    nextRound(state) {
-      state.current_round++;
     },
     addBlindStep(state, { small, big }) {
       state.game_state.blind_rules.steps.push({ small, big });

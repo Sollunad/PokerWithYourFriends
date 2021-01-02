@@ -11,6 +11,7 @@ function getFEGameState(beGame, table, user_id, clientsForGame) {
         round_finished: table ? !!table.gameWinners.length : false,
         min_raise: table ? table.minRaise : 0,
         event_list: table ? table.event_list.map(event => mapEvent(event, beGame)).reverse() : [],
+        rounds_played: beGame.rounds_played,
     }
 }
 

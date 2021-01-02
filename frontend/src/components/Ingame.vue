@@ -32,7 +32,7 @@
             <v-layout align-center justify-space-around>
               <v-flex md1>
                 <h2>Pot:</h2>
-                <h2>{{ $store.state.game_state.pot }}$</h2>
+                <h2>{{ gameState.pot }}$</h2>
               </v-flex>
               <v-flex md6>
                 <v-container class="board">
@@ -41,38 +41,35 @@
                       <v-img
                         max-height="150"
                         max-width="60"
-                        v-if="$store.state.game_state.round_running"
-                        :src="getCardBoard($store.state.game_state.board[idx])"
+                        v-if="gameState.round_running"
+                        :src="getCardBoard(gameState.board[idx])"
                       ></v-img>
                     </v-flex>
                   </v-layout>
                 </v-container>
               </v-flex>
               <v-flex md3>
-                <div class="mb-2">Round: {{ $store.state.current_round }}</div>
-                <div class="mb-2">
-                  Current blinds:
+                <div class="mb-2" v-if="gameState.round_running">Round {{ gameState.rounds_played + 1 }}</div>
+                <div class="mb-2" v-else>Coming up: Round {{ gameState.rounds_played + 1 }}</div>
+                <div class="mb-2" v-if="currentBlindStep">
+                  Blinds:
                   <v-chip>
-                    {{ $store.state.game_state.blind_rules.steps[0].small }}/{{
-                      $store.state.game_state.blind_rules.steps[0].big
-                    }}</v-chip
+                    {{ currentBlindStep.small }}/{{ currentBlindStep.big }}</v-chip
                   >
                 </div>
-                <div>
-                  Increase to
+                <div v-if="nextBlindStep">
+                  Next:
                   <v-chip
-                    >{{ $store.state.game_state.blind_rules.steps[1].small }}/{{
-                      $store.state.game_state.blind_rules.steps[1].big
-                    }}</v-chip
+                    >{{ nextBlindStep.small }}/{{ nextBlindStep.big }}</v-chip
                   >
-                  in {{ roundsTillNextBlind }} rounds
+                  starting Round {{ roundForNextBlindStep }}
                 </div>
               </v-flex>
             </v-layout>
           </v-container>
 
           <div
-            v-for="(player, idx) in $store.state.game_state.players"
+            v-for="(player, idx) in gameState.players"
             :key="idx"
             :class="playerClass({ player: player, idx: idx + 1 })"
           >
@@ -111,7 +108,7 @@
             </v-card>
             <v-img
               v-if="
-                $store.state.game_state.round_running &&
+                gameState.round_running &&
                   !player.has_fold &&
                   player.cards[0]
               "
@@ -122,7 +119,7 @@
             ></v-img>
             <v-img
               v-if="
-                $store.state.game_state.round_running &&
+                gameState.round_running &&
                   !player.has_fold &&
                   player.cards[1]
               "
@@ -141,7 +138,7 @@
       <v-layout row wrap>
         <v-flex md5 class="game_log">
           <v-virtual-scroll
-            :items="$store.state.game_state.event_list"
+            :items="gameState.event_list"
             height="150"
             item-height="25"
           >
@@ -242,49 +239,55 @@ export default {
     };
   },
   computed: {
+    gameState() {
+      return this.$store.state.game_state;
+    },
+    currentUser() {
+      return this.$store.getters.current_user;
+    },
     minRaise() {
-      return this.$store.state.game_state.min_raise;
+      return this.gameState.min_raise;
     },
     maxRaise() {
       return (
-        this.$store.getters.current_user.chips_bank -
-        this.$store.getters.current_user.call_value
+        this.currentUser.chips_bank -
+        this.currentUser.call_value
       );
     },
     round_running() {
-      return this.$store.state.game_state.round_running;
+      return this.gameState.round_running;
     },
     round_finished() {
-      return this.$store.state.game_state.round_finished;
+      return this.gameState.round_finished;
     },
     isAdmin() {
-      return this.$store.getters.current_user.is_admin;
+      return this.currentUser.is_admin;
     },
     isTurn() {
-      return this.$store.getters.current_user.is_turn;
+      return this.currentUser.is_turn;
     },
     canCheck() {
-      return this.$store.getters.current_user.call_value === 0;
+      return this.currentUser.call_value === 0;
     },
     canShowCards() {
       return (
         this.round_finished &&
-        !this.$store.getters.current_user.shows_cards &&
-        !this.$store.getters.current_user.has_fold
+        !this.currentUser.shows_cards &&
+        !this.currentUser.has_fold
       );
     },
     canCallWithoutAllIn() {
       return (
-        this.$store.getters.current_user.call_value <
-        this.$store.getters.current_user.chips_bank
+        this.currentUser.call_value <
+        this.currentUser.chips_bank
       );
     },
     callButtonText() {
-      return `Call ${this.$store.getters.current_user.call_value}`;
+      return `Call ${this.currentUser.call_value}`;
     },
     raiseButtonText() {
       return `Raise ${this.raise_amount} => Bet ${this.raise_amount +
-        this.$store.getters.current_user.call_value}`;
+        this.currentUser.call_value}`;
     },
     baseUrl() {
       return window.location.origin;
@@ -292,15 +295,23 @@ export default {
     adminLogo() {
       return `${this.baseUrl}/admin_crown.svg`;
     },
-    logText() {
-      return this.$store.state.game_state.event_list.join("\n");
+    roundForNextBlindStep() {
+      const maxBlindNum = this.gameState.blind_rules.steps.length - 1;
+      if (this.currentBlindNum === maxBlindNum) return undefined;
+      return 1 + this.gameState.blind_rules.raise_every_n_rounds * (this.currentBlindNum + 1);
     },
-    roundsTillNextBlind() {
-      return (
-        this.$store.state.game_state.blind_rules.raise_every_n_rounds -
-        (this.$store.state.current_round %
-          this.$store.state.game_state.blind_rules.raise_every_n_rounds)
-      );
+    currentBlindNum() {
+      const num = Math.floor(this.gameState.rounds_played / this.gameState.blind_rules.raise_every_n_rounds);
+      const maxBlindNum = this.gameState.blind_rules.steps.length - 1;
+      return num > maxBlindNum ? maxBlindNum : num;
+    },
+    currentBlindStep() {
+      return this.gameState.blind_rules.steps[this.currentBlindNum];
+    },
+    nextBlindStep() {
+      const maxBlindNum = this.gameState.blind_rules.steps.length - 1;
+      if (this.currentBlindNum === maxBlindNum) return undefined;
+      return this.gameState.blind_rules.steps[this.currentBlindNum + 1];
     }
   },
   methods: {
@@ -317,7 +328,6 @@ export default {
     },
     startRound() {
       this.$store.state.socket.emit("message", { action: "startRound" });
-      this.$store.commit("nextRound");
     },
     finishRound() {
       this.$store.state.socket.emit("message", { action: "finishRound" });
