@@ -318,7 +318,7 @@ Table.prototype.StartGame = function () {
   });
 
   // get currentPlayer
-  this.setCurrentPlayerForNewRound();
+  this.setCurrentPlayerForNewGame();
 };
 
 Table.prototype.AddPlayer = function (playerName, chips) {
@@ -326,22 +326,26 @@ Table.prototype.AddPlayer = function (playerName, chips) {
   this.players.push(player);
 };
 
-Table.prototype.setCurrentPlayerForNewRound = function () {
+Table.prototype.setCurrentPlayerForNewGame = function () {
   this.currentPlayer = (this.dealer + 3) % this.players.length;
-  while (
-    this.players[this.currentPlayer].folded ||
-    this.players[this.currentPlayer].allIn
-  ) {
-    this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
-  }
+  this.moveForwardUntilPlayable();
+};
+
+Table.prototype.setCurrentPlayerForNewRound = function () {
+  this.currentPlayer = (this.dealer + 1) % this.players.length;
+  this.moveForwardUntilPlayable();
 };
 
 Table.prototype.moveCurrentPlayerForward = function () {
   this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
+  this.moveForwardUntilPlayable();
+};
+
+Table.prototype.moveForwardUntilPlayable = function() {
   while (
-    this.players[this.currentPlayer].folded ||
-    this.players[this.currentPlayer].allIn
-  ) {
+      this.players[this.currentPlayer].folded ||
+      this.players[this.currentPlayer].allIn
+      ) {
     this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
   }
 };
