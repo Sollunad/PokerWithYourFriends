@@ -444,6 +444,7 @@ Player.prototype.AllIn = function () {
   this.talked = true;
   this.table.event_list.push({
     event: 'allIn',
+    amount: allInValue,
     user_id: this.playerName,
   });
   progress(this.table);

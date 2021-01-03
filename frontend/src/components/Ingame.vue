@@ -188,7 +188,7 @@
                   </template>
                 </v-slider>
               </v-flex>
-              <v-flex md2>
+              <v-flex md2 v-if="raise_amount > 0">
                 <v-text-field
                   v-model="raise_amount"
                   class="mt-0 pt-0"
@@ -214,10 +214,10 @@
                 <v-btn block color="red">Call All In</v-btn>
               </v-flex>
               <v-flex md2></v-flex>
-              <v-flex v-if="raise_amount === maxRaise" @click="btnRaise" md2>
+              <v-flex v-if="raise_amount === maxRaise && canCallWithoutAllIn" @click="btnRaise" md2>
                 <v-btn block color="red">Raise All In</v-btn>
               </v-flex>
-              <v-flex v-else @click="btnRaise" md2>
+              <v-flex v-else-if="canCallWithoutAllIn" @click="btnRaise" md2>
                 <v-btn block>{{ raiseButtonText }}</v-btn>
               </v-flex>
             </v-layout>

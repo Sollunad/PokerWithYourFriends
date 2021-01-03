@@ -80,7 +80,7 @@ function mapEvent(event, beGame) {
         case 'check': return `${username} checks.`;
         case 'call': return `${username} calls.`;
         case 'raise': return `${username} raises with ${event.amount}$.`;
-        case 'allIn': return `${username} goes All In!`;
+        case 'allIn': return `${username} goes All In with their remaining ${event.amount}$!`;
         case 'flop': return `--- Flop ---`;
         case 'turn': return `--- Turn ---`;
         case 'river': return `--- River ---`;
