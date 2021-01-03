@@ -5,9 +5,12 @@ function Table(game_code, smallBlind, bigBlind, dealer) {
   this.game_code = game_code;
   this.smallBlind = smallBlind;
   this.bigBlind = bigBlind;
+  this.smallBlindPlayer = undefined;
+  this.bigBlindPlayer = undefined;
   this.minRaise = bigBlind;
   this.players = [];
   this.dealer = dealer;
+  this.dealerPlayer = undefined;
   this.gameWinners = [];
   this.event_list = [];
 }
@@ -283,36 +286,47 @@ Table.prototype.StartGame = function () {
     this.game.roundBets[i] = 0;
   }
 
+  this.dealerPlayer = this.players[this.dealer];
+
   // Identify Small and Big Blind player indexes
-  const smallBlind = (this.dealer + 1) % this.players.length;
-  const bigBlind = (this.dealer + 2) % this.players.length;
+  let smallBlind, bigBlind;
+  if (this.players.length === 2) {
+    smallBlind = this.dealer;
+    bigBlind = (this.dealer + 1) % this.players.length;
+  } else {
+    smallBlind = (this.dealer + 1) % this.players.length;
+    bigBlind = (this.dealer + 2) % this.players.length;
+  }
+
+  this.smallBlindPlayer = this.players[smallBlind];
+  this.bigBlindPlayer = this.players[bigBlind];
 
   // Force Blind Bets
-  if (this.players[smallBlind].chips <= this.smallBlind) {
-    this.game.bets[smallBlind] = this.players[smallBlind].chips;
-    this.players[smallBlind].chips = 0;
-    this.players[smallBlind].allIn = true;
+  if (this.smallBlindPlayer.chips <= this.smallBlind) {
+    this.game.bets[smallBlind] = this.smallBlindPlayer.chips;
+    this.smallBlindPlayer.chips = 0;
+    this.smallBlindPlayer.allIn = true;
   } else {
-    this.players[smallBlind].chips -= this.smallBlind;
+    this.smallBlindPlayer.chips -= this.smallBlind;
     this.game.bets[smallBlind] = this.smallBlind;
   }
   this.event_list.push({
-    user_id: this.players[smallBlind].playerName,
+    user_id: this.smallBlindPlayer.playerName,
     event: 'smallBlind',
     amount: this.game.bets[smallBlind],
   });
 
-  if (this.players[bigBlind].chips <= this.bigBlind) {
-    this.game.bets[bigBlind] = this.players[bigBlind].chips;
-    this.players[bigBlind].chips = 0;
-    this.players[bigBlind].allIn = true;
+  if (this.bigBlindPlayer.chips <= this.bigBlind) {
+    this.game.bets[bigBlind] = this.bigBlindPlayer.chips;
+    this.bigBlindPlayer.chips = 0;
+    this.bigBlindPlayer.allIn = true;
   } else {
-    this.players[bigBlind].chips -= this.bigBlind;
+    this.bigBlindPlayer.chips -= this.bigBlind;
     this.game.bets[bigBlind] = this.bigBlind;
   }
 
   this.event_list.push({
-    user_id: this.players[bigBlind].playerName,
+    user_id: this.bigBlindPlayer.playerName,
     event: 'bigBlind',
     amount: this.game.bets[bigBlind],
   });
@@ -327,7 +341,8 @@ Table.prototype.AddPlayer = function (playerName, chips) {
 };
 
 Table.prototype.setCurrentPlayerForNewGame = function () {
-  this.currentPlayer = (this.dealer + 3) % this.players.length;
+  if (this.players.length === 2) this.currentPlayer = this.dealer;
+  else this.currentPlayer = (this.dealer + 3) % this.players.length;
   this.moveForwardUntilPlayable();
 };
 

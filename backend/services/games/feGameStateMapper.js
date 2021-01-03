@@ -16,10 +16,6 @@ function getFEGameState(beGame, table, user_id, clientsForGame) {
 }
 
 function getFEPlayer(bePlayer, beGame, table, user_id, clientsForGame) {
-    const dealer_num = table ? table.dealer : 0;
-    const players_in_game = beGame.players.filter(p => p.chips > 0);
-    const sb_num = (dealer_num + 1) % players_in_game.length;
-    const bb_num = (dealer_num + 2) % players_in_game.length;
     const table_player = table ? table.players.find(p => p.playerName === bePlayer.user_id) : undefined;
     const table_player_id = table_player ? table_player.playerId() : 0;
     return {
@@ -28,9 +24,9 @@ function getFEPlayer(bePlayer, beGame, table, user_id, clientsForGame) {
         is_turn: table ? bePlayer.user_id === table.getCurrentPlayer() : false,
         is_connected: clientsForGame.some(c => c.user_id === bePlayer.user_id),
         is_admin: bePlayer.user_id === beGame.admin,
-        is_dealer: table ? bePlayer.user_id === players_in_game[dealer_num].user_id : false,
-        is_bb: table ? bePlayer.user_id === players_in_game[bb_num].user_id : false,
-        is_sb: table ? bePlayer.user_id === players_in_game[sb_num].user_id : false,
+        is_dealer: table ? bePlayer.user_id === table.dealerPlayer.playerName : false,
+        is_bb: table ? bePlayer.user_id === table.bigBlindPlayer.playerName : false,
+        is_sb: table ? bePlayer.user_id === table.smallBlindPlayer.playerName : false,
         is_allIn: table_player ? table_player.allIn : false,
         is_round_winner: table ? table.gameWinners.some(w => w.playerName === bePlayer.user_id) : false,
         is_out: bePlayer.chips === 0,
